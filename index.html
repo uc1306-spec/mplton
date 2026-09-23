@@ -12,14 +12,14 @@
                 extend: {
                     colors: {
                         toss: {
-                            blue: '#3182F6',
-                            blueHover: '#1B64D8',
-                            bg: '#F2F4F6',
+                            red: '#F04452',
+                            redHover: '#D93845',
+                            bg: '#F8F9FA',
                             card: '#FFFFFF',
                             textMain: '#191F28',
                             textSub: '#8B95A1',
                             border: '#E5E8EB',
-                            lightBlue: '#E8F3FF'
+                            lightRed: '#FFF2F2'
                         }
                     }
                 }
@@ -33,7 +33,7 @@
             box-sizing: border-box;
         }
         body {
-            background-color: #F2F4F6;
+            background-color: #F8F9FA;
             color: #191F28;
         }
     </style>
@@ -45,8 +45,8 @@
         <div>
             <!-- 로고 영역 -->
             <div class="flex items-center gap-3 mb-8 px-2">
-                <div class="w-10 h-10 rounded-2xl bg-toss-lightBlue flex items-center justify-center text-toss-blue font-bold text-xl shadow-sm">
-                    📈
+                <div class="w-10 h-10 rounded-2xl bg-toss-lightRed flex items-center justify-center text-toss-red font-bold text-xl shadow-xs">
+                    📝
                 </div>
                 <div>
                     <h1 class="font-bold text-lg text-toss-textMain tracking-tight">명플턴의 메모</h1>
@@ -54,31 +54,30 @@
                 </div>
             </div>
 
-            <!-- 운영자 인증 상태 배너 -->
-            <div id="authSection" class="mb-6 bg-toss-bg p-3.5 rounded-2xl border border-toss-border flex flex-col gap-2.5">
-                <div class="flex items-center justify-between">
-                    <span id="authUserInfo" class="text-xs font-semibold text-toss-textMain truncate">방문자 모드</span>
-                    <button id="authBtn" onclick="handleAuthClick()" class="text-xs font-bold text-toss-blue hover:underline bg-white px-2.5 py-1 rounded-lg border border-toss-border shadow-2xs">로그인</button>
-                </div>
-            </div>
-
             <!-- 폴더 섹션 -->
             <div class="space-y-3">
                 <div class="flex items-center justify-between px-2">
-                    <span class="text-xs font-bold text-toss-textSub tracking-wider uppercase">분류 폴더</span>
+                    <span class="text-xs font-bold text-toss-textSub tracking-wider uppercase">메모 분류 폴더</span>
                     <!-- 운영자 한정 폴더 추가 버튼 -->
-                    <button id="addFolderBtn" class="w-6 h-6 rounded-lg bg-toss-lightBlue text-toss-blue font-bold flex items-center justify-center hover:bg-blue-100 transition hidden" onclick="openFolderModal()" title="폴더 추가">+</button>
+                    <button id="addFolderBtn" class="w-6 h-6 rounded-lg bg-toss-lightRed text-toss-red font-bold flex items-center justify-center hover:bg-red-100 transition hidden" onclick="openFolderModal()" title="폴더 추가">+</button>
                 </div>
                 <ul id="folderList" class="space-y-1">
-                    <li class="flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold text-toss-blue bg-toss-lightBlue transition" onclick="selectFolder('all')">
-                        <span>전체 보기</span>
+                    <li class="flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold text-toss-red bg-toss-lightRed transition" onclick="selectFolder('all')">
+                        <span>📝 전체 보기</span>
                     </li>
                 </ul>
             </div>
         </div>
 
-        <div class="text-center pt-4 border-t border-toss-border">
-            <span class="text-[11px] text-toss-textSub font-medium">© 2026 Myeongpleton Insights</span>
+        <!-- 좌측 하단 로그인 / 회원가입 및 운영자 세션 관리 -->
+        <div id="authSection" class="pt-4 border-t border-toss-border flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <span id="authUserInfo" class="text-xs font-semibold text-toss-textMain truncate">방문자 모드</span>
+                <button id="authBtn" onclick="handleAuthClick()" class="text-xs font-bold text-toss-red hover:underline bg-toss-lightRed px-3 py-1.5 rounded-lg border border-red-100 shadow-2xs">로그인</button>
+            </div>
+            <div class="text-center">
+                <span class="text-[11px] text-toss-textSub font-medium">© 2026 Myeongpleton Insights</span>
+            </div>
         </div>
     </aside>
 
@@ -87,14 +86,14 @@
         <header class="h-20 bg-white border-b border-toss-border px-8 flex justify-between items-center z-15">
             <div class="flex items-center gap-4">
                 <h2 id="currentFolderTitle" class="text-2xl font-bold text-toss-textMain tracking-tight">전체 보기</h2>
-                <span class="text-xs bg-toss-lightBlue text-toss-blue font-bold px-2.5 py-1 rounded-full">실시간 업데이트</span>
+                <span class="text-xs bg-toss-lightRed text-toss-red font-bold px-2.5 py-1 rounded-full">실시간 업데이트</span>
             </div>
             <div class="flex items-center gap-3">
                 <div class="relative">
-                    <input type="text" id="searchInput" placeholder="종목, 핵심 키워드 검색..." oninput="renderCards()" class="w-72 bg-toss-bg border border-toss-border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-toss-blue focus:bg-white transition">
+                    <input type="text" id="searchInput" placeholder="종목, 핵심 키워드 검색..." oninput="renderCards()" class="w-72 bg-toss-bg border border-toss-border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-toss-red focus:bg-white transition">
                 </div>
                 <!-- 운영자 한정 새 메모 작성 버튼 -->
-                <button id="writeMemoBtn" onclick="openWriteModal()" class="bg-toss-blue hover:bg-toss-blueHover text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-sm transition flex items-center gap-2 hidden">
+                <button id="writeMemoBtn" onclick="openWriteModal()" class="bg-toss-red hover:bg-toss-redHover text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-sm transition flex items-center gap-2 hidden">
                     <span>+ 새 메모 작성</span>
                 </button>
             </div>
@@ -118,15 +117,15 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">작성일자</label>
-                    <input type="date" id="writeDate" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-blue">
+                    <input type="date" id="writeDate" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">분류 폴더</label>
-                    <select id="writeFolderSelect" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-blue"></select>
+                    <select id="writeFolderSelect" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red"></select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">투자 관점 태그</label>
-                    <select id="writeTag" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-blue">
+                    <select id="writeTag" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
                         <option value="📈 매수 관점">📈 매수 관점</option>
                         <option value="📉 매도 관점">📉 매도 관점</option>
                         <option value="💡 기업 분석">💡 기업 분석</option>
@@ -136,7 +135,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">메모 제목 / 종목명</label>
-                    <input type="text" id="writeTitle" placeholder="예: 엔비디아 2분기 실적 리뷰 및 밸류에이션 점검" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-blue">
+                    <input type="text" id="writeTitle" placeholder="예: 엔비디아 2분기 실적 리뷰 및 밸류에이션 점검" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">차트 / 이미지 첨부 (선택)</label>
@@ -144,11 +143,11 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">전문가 인사이트 메모</label>
-                    <textarea id="writeMemo" rows="5" placeholder="투자 핵심 지표, 목표가, 리스크 요인 등을 자유롭게 기록하세요..." class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-blue resize-none"></textarea>
+                    <textarea id="writeMemo" rows="5" placeholder="투자 핵심 지표, 목표가, 리스크 요인 등을 자유롭게 기록하세요..." class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red resize-none"></textarea>
                 </div>
             </div>
 
-            <button onclick="saveCard()" class="w-full bg-toss-blue hover:bg-toss-blueHover text-white font-bold py-3.5 rounded-xl shadow-md transition">인사이츠 발행하기</button>
+            <button onclick="saveCard()" class="w-full bg-toss-red hover:bg-toss-redHover text-white font-bold py-3.5 rounded-xl shadow-md transition">인사이츠 발행하기</button>
         </div>
     </div>
 
@@ -158,7 +157,7 @@
             <div class="flex justify-between items-start">
                 <div>
                     <div class="flex items-center gap-2 mb-2">
-                        <span id="detailFolderBadge" class="text-xs bg-toss-lightBlue text-toss-blue font-bold px-2.5 py-1 rounded-md"></span>
+                        <span id="detailFolderBadge" class="text-xs bg-toss-lightRed text-toss-red font-bold px-2.5 py-1 rounded-md"></span>
                         <span id="detailDateTag" class="text-xs text-toss-textSub font-medium"></span>
                     </div>
                     <h3 id="detailTitle" class="text-2xl font-bold text-toss-textMain tracking-tight"></h3>
@@ -185,8 +184,8 @@
                 <!-- 댓글 작성 폼 -->
                 <div class="bg-toss-bg p-4 rounded-2xl flex flex-col gap-3">
                     <div class="flex gap-2">
-                        <input type="text" id="commentAuthor" placeholder="필명 (예: 동학개미)" class="w-36 bg-white border border-toss-border rounded-xl px-3.5 py-2 text-xs outline-none focus:border-toss-blue">
-                        <input type="text" id="commentText" placeholder="종목에 대한 의견이나 질문을 남겨보세요..." class="flex-1 bg-white border border-toss-border rounded-xl px-3.5 py-2 text-xs outline-none focus:border-toss-blue" onkeypress="if(event.key === 'Enter') addComment()">
+                        <input type="text" id="commentAuthor" placeholder="필명 (예: 동학개미)" class="w-36 bg-white border border-toss-border rounded-xl px-3.5 py-2 text-xs outline-none focus:border-toss-red">
+                        <input type="text" id="commentText" placeholder="종목에 대한 의견이나 질문을 남겨보세요..." class="flex-1 bg-white border border-toss-border rounded-xl px-3.5 py-2 text-xs outline-none focus:border-toss-red" onkeypress="if(event.key === 'Enter') addComment()">
                     </div>
                     <button onclick="addComment()" class="self-end bg-toss-textMain text-white font-bold text-xs px-4 py-2 rounded-xl hover:opacity-90 transition">댓글 등록</button>
                 </div>
@@ -208,9 +207,9 @@
             </div>
             <div>
                 <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">폴더 이름</label>
-                <input type="text" id="newFolderNameInput" placeholder="예: 반도체 밸류체인" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-blue">
+                <input type="text" id="newFolderNameInput" placeholder="예: 반도체 밸류체인" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
             </div>
-            <button onclick="confirmAddFolder()" class="w-full bg-toss-blue text-white font-bold py-3 rounded-xl text-sm shadow-md">폴더 생성</button>
+            <button onclick="confirmAddFolder()" class="w-full bg-toss-red text-white font-bold py-3 rounded-xl text-sm shadow-md">폴더 생성</button>
         </div>
     </div>
 
@@ -224,17 +223,17 @@
             <div class="space-y-3">
                 <div>
                     <label class="block text-xs font-bold text-toss-textSub mb-1 uppercase">이메일</label>
-                    <input type="email" id="loginEmail" value="gimms2002@naver.com" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-blue">
+                    <input type="email" id="loginEmail" value="gimms2002@naver.com" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-toss-textSub mb-1 uppercase">비밀번호</label>
-                    <input type="password" id="loginPassword" placeholder="비밀번호 입력" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-blue">
+                    <input type="password" id="loginPassword" placeholder="비밀번호 입력" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
                 </div>
             </div>
-            <button id="authSubmitBtn" onclick="executeAuthAction()" class="w-full bg-toss-blue text-white font-bold py-3 rounded-xl text-sm shadow-md">로그인하기</button>
+            <button id="authSubmitBtn" onclick="executeAuthAction()" class="w-full bg-toss-red text-white font-bold py-3 rounded-xl text-sm shadow-md">로그인하기</button>
             
             <div class="text-center pt-2 border-t border-toss-border">
-                <button id="authToggleBtn" onclick="toggleAuthMode()" class="text-xs text-toss-sub hover:text-toss-blue font-semibold">계정이 없으신가요? 회원가입</button>
+                <button id="authToggleBtn" onclick="toggleAuthMode()" class="text-xs text-toss-sub hover:text-toss-red font-semibold">계정이 없으신가요? 회원가입</button>
             </div>
         </div>
     </div>
@@ -244,7 +243,7 @@
         <div class="bg-white rounded-3xl w-full max-w-xs p-6 shadow-2xl text-center flex flex-col gap-5">
             <p id="customDialogMsg" class="text-sm font-semibold text-toss-textMain leading-relaxed">알림 메시지</p>
             <div id="customDialogActions" class="flex gap-2 justify-center">
-                <button onclick="closeCustomDialog()" class="w-full bg-toss-blue text-white font-bold py-2.5 rounded-xl text-sm shadow-sm">확인</button>
+                <button onclick="closeCustomDialog()" class="w-full bg-toss-red text-white font-bold py-2.5 rounded-xl text-sm shadow-sm">확인</button>
             </div>
         </div>
     </div>
@@ -308,11 +307,11 @@
             if (currentUser && currentUser.email) {
                 infoEl.innerText = isOperator ? `운영자: ${currentUser.email}` : `로그인: ${currentUser.email}`;
                 btnEl.innerText = '로그아웃';
-                btnEl.className = 'text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg transition';
+                btnEl.className = 'text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition border border-red-200';
             } else {
                 infoEl.innerText = '방문자 모드';
                 btnEl.innerText = '로그인';
-                btnEl.className = 'text-xs font-bold text-toss-blue hover:underline bg-white px-2.5 py-1 rounded-lg border border-toss-border shadow-2xs';
+                btnEl.className = 'text-xs font-bold text-toss-red hover:underline bg-toss-lightRed px-3 py-1.5 rounded-lg border border-red-100 shadow-2xs';
             }
 
             if (isOperator) {
@@ -336,6 +335,7 @@
                 isSignUpMode = false;
                 updateAuthModalMode();
                 document.getElementById('loginEmail').value = 'gimms2002@naver.com';
+                document.getElementById('loginPassword').value = '';
                 document.getElementById('loginModal').style.display = 'flex';
             }
         }
@@ -691,8 +691,8 @@
             
             const isAllActive = currentFolder === 'all';
             folderList.innerHTML = `
-                <li class="flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold transition ${isAllActive ? 'text-toss-blue bg-toss-lightBlue' : 'text-toss-textMain hover:bg-toss-bg'}" onclick="selectFolder('all')">
-                    <span>전체 보기</span>
+                <li class="flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold transition ${isAllActive ? 'text-toss-red bg-toss-lightRed' : 'text-toss-textMain hover:bg-toss-bg'}" onclick="selectFolder('all')">
+                    <span>📝 전체 보기</span>
                 </li>
             `;
             if (select) select.innerHTML = '';
@@ -700,8 +700,8 @@
             folders.forEach(folder => {
                 const isActive = currentFolder === folder;
                 folderList.innerHTML += `
-                    <li class="flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold transition group ${isActive ? 'text-toss-blue bg-toss-lightBlue' : 'text-toss-textMain hover:bg-toss-bg'}" onclick="selectFolder('${folder}')">
-                        <span>📁 ${folder}</span>
+                    <li class="flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold transition group ${isActive ? 'text-toss-red bg-toss-lightRed' : 'text-toss-textMain hover:bg-toss-bg'}" onclick="selectFolder('${folder}')">
+                        <span>📌 ${folder}</span>
                         ${isOperator ? `<button onclick="event.stopPropagation(); deleteFolder('${folder}')" class="text-xs text-toss-textSub hover:text-red-500 hidden group-hover:block font-bold">×</button>` : ''}
                     </li>
                 `;
@@ -733,7 +733,6 @@
             // 월별 그룹화 (YYYY-MM)
             const grouped = {};
             filtered.forEach(card => {
-                // card.date 예: "2026-06-05" 또는 "2026.06.05"
                 const cleanDate = card.date.replace(/\./g, '-');
                 const ym = cleanDate.length >= 7 ? cleanDate.substring(0, 7) : '기타';
                 if (!grouped[ym]) grouped[ym] = [];
@@ -752,7 +751,7 @@
                 let monthHtml = `
                     <div class="space-y-4">
                         <div class="flex items-center gap-4">
-                            <span class="text-sm font-bold text-toss-blue bg-toss-lightBlue px-3 py-1 rounded-full">${monthTitle}</span>
+                            <span class="text-sm font-bold text-toss-red bg-toss-lightRed px-3 py-1 rounded-full">${monthTitle}</span>
                             <div class="flex-1 border-t border-toss-border"></div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -768,13 +767,13 @@
                                 <div class="p-5 flex flex-col gap-3">
                                     <div class="flex justify-between items-center">
                                         <span class="text-xs text-toss-textSub font-medium">${card.date}</span>
-                                        <span class="text-xs bg-red-50 text-red-500 font-bold px-2 py-0.5 rounded-md">${card.tag}</span>
+                                        <span class="text-xs bg-red-50 text-toss-red font-bold px-2 py-0.5 rounded-md">${card.tag}</span>
                                     </div>
-                                    <h3 class="font-bold text-toss-textMain text-base leading-snug line-clamp-2 group-hover:text-toss-blue transition">${card.title}</h3>
+                                    <h3 class="font-bold text-toss-textMain text-base leading-snug line-clamp-2 group-hover:text-toss-red transition">${card.title}</h3>
                                 </div>
                             </div>
                             <div class="px-5 py-3.5 border-t border-toss-border flex justify-between items-center bg-gray-50/50">
-                                <span class="text-xs font-semibold text-toss-textSub">📁 ${card.folder} | 💬 ${commentCount}</span>
+                                <span class="text-xs font-semibold text-toss-textSub">📌 ${card.folder} | 💬 ${commentCount}</span>
                                 ${isOperator ? `<button onclick="deleteCardFromGrid(event, ${card.id})" class="text-xs text-red-500 hover:bg-red-50 px-2 py-1 rounded font-bold transition">삭제</button>` : ''}
                             </div>
                         </div>
@@ -790,7 +789,7 @@
         function showCustomAlert(msg) {
             const modal = document.getElementById('customDialogModal');
             document.getElementById('customDialogMsg').innerText = msg;
-            document.getElementById('customDialogActions').innerHTML = `<button onclick="closeCustomDialog()" class="w-full bg-toss-blue text-white font-bold py-2.5 rounded-xl text-sm shadow-sm">확인</button>`;
+            document.getElementById('customDialogActions').innerHTML = `<button onclick="closeCustomDialog()" class="w-full bg-toss-red text-white font-bold py-2.5 rounded-xl text-sm shadow-sm">확인</button>`;
             modal.style.display = 'flex';
         }
 
@@ -800,7 +799,7 @@
             window._tempConfirm = onConfirm;
             document.getElementById('customDialogActions').innerHTML = `
                 <button onclick="closeCustomDialog()" class="flex-1 bg-gray-100 text-toss-textMain font-bold py-2.5 rounded-xl text-sm">취소</button>
-                <button onclick="closeCustomDialog(); if(window._tempConfirm) window._tempConfirm();" class="flex-1 bg-toss-blue text-white font-bold py-2.5 rounded-xl text-sm shadow-sm">확인</button>
+                <button onclick="closeCustomDialog(); if(window._tempConfirm) window._tempConfirm();" class="flex-1 bg-toss-red text-white font-bold py-2.5 rounded-xl text-sm shadow-sm">확인</button>
             `;
             modal.style.display = 'flex';
         }
