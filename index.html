@@ -54,15 +54,6 @@
                 </div>
             </div>
 
-            <!-- 개인 프로필 필명 설정 영역 -->
-            <div id="profileSection" class="mb-6 p-3.5 bg-toss-bg rounded-2xl border border-toss-border hidden">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-toss-textMain">👤 내 필명 설정</span>
-                    <button onclick="saveMyNickname()" class="text-[11px] font-bold text-toss-red bg-white px-2 py-1 rounded-lg border border-red-100 shadow-2xs hover:bg-toss-lightRed transition">저장</button>
-                </div>
-                <input type="text" id="myNicknameInput" placeholder="토론방 필명 입력" class="w-full bg-white border border-toss-border rounded-xl px-3 py-2 text-xs outline-none focus:border-toss-red">
-            </div>
-
             <!-- 폴더 섹션 -->
             <div class="space-y-3">
                 <div class="flex items-center justify-between px-2">
@@ -78,11 +69,11 @@
             </div>
         </div>
 
-        <!-- 좌측 하단 로그인 / 회원가입 및 운영자 세션 관리 -->
+        <!-- 좌측 하단 로그인 / 회원가입 및 세션 관리 -->
         <div id="authSection" class="pt-4 border-t border-toss-border flex flex-col gap-3">
             <div class="flex items-center justify-between">
                 <span id="authUserInfo" class="text-xs font-semibold text-toss-textMain truncate">방문자 모드</span>
-                <button id="authBtn" onclick="handleAuthClick()" class="text-xs font-bold text-toss-red hover:underline bg-toss-lightRed px-3 py-1.5 rounded-lg border border-red-100 shadow-2xs">로그인</button>
+                <button id="authBtn" class="text-xs font-bold text-toss-red hover:underline bg-toss-lightRed px-3 py-1.5 rounded-lg border border-red-100 shadow-2xs">로그인</button>
             </div>
             <div class="text-center">
                 <span class="text-[11px] text-toss-textSub font-medium">© 2026 Myeongpleton Insights</span>
@@ -125,23 +116,23 @@
             </div>
         </header>
 
-        <div class="flex-1 p-10 overflow-y-auto flex justify-center">
-            <div class="w-full max-w-4xl space-y-8 pb-20">
-                <div class="flex flex-col gap-3 border-b border-toss-border pb-6">
+        <div class="flex-1 p-10 overflow-y-auto flex justify-start">
+            <div class="w-full max-w-4xl space-y-8 pb-20 text-left">
+                <div class="flex flex-col gap-3 border-b border-toss-border pb-6 text-left">
                     <div class="flex items-center gap-3">
                         <span id="detailFolderBadge" class="text-xs bg-toss-lightRed text-toss-red font-bold px-3 py-1 rounded-full"></span>
                         <span id="detailDateTag" class="text-xs text-toss-textSub font-medium"></span>
                     </div>
-                    <h2 id="detailTitle" class="text-3xl font-extrabold text-toss-textMain tracking-tight"></h2>
+                    <h2 id="detailTitle" class="text-3xl font-extrabold text-toss-textMain tracking-tight text-left"></h2>
                 </div>
 
-                <div class="space-y-6">
+                <div class="space-y-6 text-left">
                     <img id="detailImg" src="" alt="첨부 이미지" class="w-full max-h-[500px] object-cover rounded-3xl hidden border border-toss-border shadow-md">
-                    <div id="detailMemo" class="text-base text-toss-textMain leading-relaxed whitespace-pre-wrap bg-toss-bg p-8 rounded-3xl border border-toss-border shadow-xs"></div>
+                    <div id="detailMemo" class="text-base text-toss-textMain leading-relaxed whitespace-pre-wrap bg-toss-bg p-8 rounded-3xl border border-toss-border shadow-xs text-left"></div>
                 </div>
 
                 <!-- 댓글 및 토론방 영역 -->
-                <div class="border-t border-toss-border pt-8 space-y-6">
+                <div class="border-t border-toss-border pt-8 space-y-6 text-left">
                     <div class="flex items-center justify-between">
                         <h4 class="text-lg font-bold text-toss-textMain flex items-center gap-2">
                             <span>💬 투자자 토론방 / 의견 남기기</span>
@@ -152,7 +143,7 @@
                     <!-- 댓글 입력 폼 -->
                     <div class="bg-toss-bg p-5 rounded-3xl border border-toss-border space-y-3">
                         <div class="flex flex-col md:flex-row gap-3">
-                            <input type="text" id="commentAuthor" placeholder="필명 (왼쪽 프로필에서 설정 가능)" class="w-full md:w-48 bg-white border border-toss-border rounded-xl px-4 py-3 text-sm outline-none focus:border-toss-red font-medium">
+                            <input type="text" id="commentAuthor" placeholder="필명 입력" class="w-full md:w-48 bg-white border border-toss-border rounded-xl px-4 py-3 text-sm outline-none focus:border-toss-red font-medium">
                             <input type="text" id="commentText" placeholder="투자 관점에 대한 의견을 남겨보세요..." onkeydown="if(event.key==='Enter') addComment()" class="flex-1 bg-white border border-toss-border rounded-xl px-4 py-3 text-sm outline-none focus:border-toss-red">
                             <button onclick="addComment()" class="bg-toss-red hover:bg-toss-redHover text-white font-bold px-6 py-3 rounded-xl text-sm transition shadow-sm shrink-0">등록하기</button>
                         </div>
@@ -213,56 +204,6 @@
         </div>
     </div>
 
-    <!-- 메모 상세 보기 및 댓글 모달 -->
-    <div id="detailModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl w-full max-w-2xl p-7 shadow-2xl flex flex-col gap-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-toss-border pb-4">
-                <div class="flex flex-col gap-1">
-                    <span id="detailDateTag" class="text-xs text-toss-textSub font-medium"></span>
-                    <h3 id="detailTitle" class="text-xl font-bold text-toss-textMain">제목</h3>
-                </div>
-                <button onclick="closeDetailModal()" class="w-8 h-8 rounded-full bg-toss-bg text-toss-textSub hover:bg-gray-200 font-bold flex items-center justify-center shrink-0">×</button>
-            </div>
-
-            <div class="space-y-4">
-                <div class="flex items-center gap-2">
-                    <span id="detailFolderBadge" class="text-xs bg-toss-lightRed text-toss-red font-bold px-3 py-1 rounded-full"></span>
-                </div>
-                <img id="detailImg" src="" alt="첨부 이미지" class="w-full h-64 object-cover rounded-2xl hidden border border-toss-border">
-                <div id="detailMemo" class="text-sm text-toss-textMain leading-relaxed whitespace-pre-wrap bg-toss-bg p-5 rounded-2xl border border-toss-border"></div>
-            </div>
-
-            <!-- 운영자 전용 삭제 버튼 -->
-            <div id="operatorCardActions" class="hidden flex justify-end">
-                <button onclick="deleteCurrentCard()" class="text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-xl transition">이 메모 영구 삭제</button>
-            </div>
-
-            <!-- 댓글 시스템 영역 -->
-            <div class="border-t border-toss-border pt-5 space-y-4">
-                <div class="flex items-center justify-between">
-                    <h4 class="text-sm font-bold text-toss-textMain flex items-center gap-2">
-                        <span>💬 투자자 토론방 / 의견 남기기</span>
-                        <span id="commentCountBadge" class="text-xs bg-toss-lightRed text-toss-red px-2 py-0.5 rounded-full font-bold">0</span>
-                    </h4>
-                </div>
-
-                <!-- 댓글 입력 폼 (필명 + 내용) -->
-                <div class="bg-toss-bg p-4 rounded-2xl border border-toss-border space-y-3">
-                    <div class="flex gap-2">
-                        <input type="text" id="commentAuthor" placeholder="필명 (예: 동학개미)" class="w-36 bg-white border border-toss-border rounded-xl px-3 py-2 text-xs outline-none focus:border-toss-red">
-                        <input type="text" id="commentText" placeholder="투자 관점에 대한 의견을 남겨보세요..." onkeydown="if(event.key==='Enter') addComment()" class="flex-1 bg-white border border-toss-border rounded-xl px-3 py-2 text-xs outline-none focus:border-toss-red">
-                        <button onclick="addComment()" class="bg-toss-red hover:bg-toss-redHover text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-xs shrink-0">등록</button>
-                    </div>
-                </div>
-
-                <!-- 댓글 목록 리스트 -->
-                <div id="commentList" class="space-y-2.5 max-h-48 overflow-y-auto">
-                    <!-- 댓글이 동적으로 렌더링됩니다 -->
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- 폴더 추가 모달 (운영자 전용) -->
     <div id="folderModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl flex flex-col gap-4">
@@ -278,42 +219,6 @@
         </div>
     </div>
 
-    <!-- 운영자 로그인 / 회원가입 모달 -->
-    <div id="loginModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl flex flex-col gap-5">
-            <div class="flex justify-between items-center">
-                <h3 id="authModalTitle" class="text-lg font-bold text-toss-textMain">로그인</h3>
-                <button onclick="closeLoginModal()" class="w-7 h-7 rounded-full bg-toss-bg text-toss-textSub font-bold flex items-center justify-center">×</button>
-            </div>
-            
-            <button onclick="handleGoogleLogin()" class="w-full bg-white border border-toss-border hover:bg-gray-50 text-toss-textMain font-bold py-3 rounded-xl text-sm shadow-xs flex items-center justify-center gap-3 transition">
-                <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.19v3.15C3.17 21.3 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.19C.43 8.12 0 9.87 0 11.7s.43 3.58 1.19 5.12l4.09-2.55z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.7 1.19 6.58l4.09 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
-                <span>Google 계정으로 로그인</span>
-            </button>
-
-            <div class="flex items-center my-1">
-                <div class="flex-1 border-t border-toss-border"></div>
-                <span class="px-3 text-xs text-toss-textSub">또는 이메일로 로그인</span>
-                <div class="flex-1 border-t border-toss-border"></div>
-            </div>
-
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-toss-textSub mb-1 uppercase">이메일</label>
-                    <input type="email" id="loginEmail" value="gimms2002@naver.com" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-toss-textSub mb-1 uppercase">비밀번호</label>
-                    <input type="password" id="loginPassword" placeholder="비밀번호 입력" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
-                </div>
-            </div>
-            <button id="authSubmitBtn" onclick="executeAuthAction()" class="w-full bg-toss-red text-white font-bold py-3 rounded-xl text-sm shadow-md">로그인하기</button>
-            
-            <div class="text-center pt-2 border-t border-toss-border">
-                <button id="authToggleBtn" onclick="toggleAuthMode()" class="text-xs text-toss-sub hover:text-toss-red font-semibold">계정이 없으신가요? 회원가입</button>
-            </div>
-        </div>
-    </div>
     <!-- 폴더명 수정 모달 (운영자 전용) -->
     <div id="editFolderModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl flex flex-col gap-4">
@@ -329,6 +234,75 @@
         </div>
     </div>
 
+    <!-- 로그인 / 회원가입 및 프로필 관리 모달 -->
+    <div id="loginModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md p-7 shadow-2xl flex flex-col gap-5">
+            <div class="flex justify-between items-center border-b border-toss-border pb-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-toss-red font-bold text-lg">→</span>
+                    <h3 id="authModalTitle" class="text-lg font-bold text-toss-textMain">로그인 / 회원가입</h3>
+                </div>
+                <button onclick="closeLoginModal()" class="w-7 h-7 rounded-full bg-toss-bg text-toss-textSub font-bold flex items-center justify-center">×</button>
+            </div>
+            
+            <!-- 로그인 전 폼 -->
+            <div id="loginFormContainer" class="space-y-4">
+                <button onclick="handleGoogleLogin()" class="w-full bg-white border border-toss-border hover:bg-gray-50 text-toss-textMain font-bold py-3 rounded-2xl text-sm shadow-xs flex items-center justify-center gap-3 transition">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.19v3.15C3.17 21.3 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.19C.43 8.12 0 9.87 0 11.7s.43 3.58 1.19 5.12l4.09-2.55z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.7 1.19 6.58l4.09 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+                    <span>구글 계정으로 로그인</span>
+                </button>
+
+                <div class="flex items-center my-2">
+                    <div class="flex-1 border-t border-toss-border"></div>
+                    <span class="px-3 text-xs text-toss-textSub">또는 이메일로 로그인</span>
+                    <div class="flex-1 border-t border-toss-border"></div>
+                </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-toss-textSub mb-1 uppercase">이메일</label>
+                        <input type="email" id="loginEmail" placeholder="이메일 입력" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-toss-textSub mb-1 uppercase">비밀번호</label>
+                        <input type="password" id="loginPassword" placeholder="비밀번호 입력" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
+                    </div>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button onclick="executeAuthAction(false)" class="flex-1 bg-toss-red hover:bg-toss-redHover text-white font-bold py-3 rounded-2xl text-sm shadow-md transition">로그인</button>
+                    <button onclick="executeAuthAction(true)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-toss-textMain font-bold py-3 rounded-2xl text-sm transition">회원가입</button>
+                </div>
+            </div>
+
+            <!-- 로그인된 상태의 팝업 뷰 -->
+            <div id="loggedInPopupContent" class="space-y-4 hidden">
+                <div>
+                    <span class="block text-xs font-bold text-toss-textSub mb-1.5">현재 로그인된 계정</span>
+                    <div id="popupUserEmail" class="w-full bg-toss-bg border border-toss-border rounded-2xl p-3.5 text-sm font-bold text-emerald-600 truncate"></div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-bold text-toss-textSub">내 닉네임 설정</label>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="myNicknameInput" placeholder="사용할 닉네임을 입력하세요" class="flex-1 bg-toss-bg border border-toss-border rounded-2xl px-4 py-3 text-sm outline-none focus:border-emerald-500 font-medium">
+                        <button onclick="saveMyNickname()" class="px-5 py-3 text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 rounded-2xl transition shadow-xs shrink-0">저장</button>
+                    </div>
+                </div>
+
+                <div class="pt-2 space-y-2">
+                    <button onclick="handleAuthClick()" class="w-full bg-gray-100 hover:bg-gray-200 text-toss-textMain font-bold py-3.5 rounded-2xl text-sm transition">로그아웃</button>
+                    <button onclick="handleAccountWithdrawal()" class="w-full bg-red-50 hover:bg-red-100 text-red-500 font-bold py-3.5 rounded-2xl text-sm transition border border-red-100">회원탈퇴 및 데이터 삭제</button>
+                </div>
+
+                <div class="text-center pt-2">
+                    <button onclick="closeLoginModal()" class="text-xs font-bold text-toss-textSub hover:text-toss-textMain">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 커스텀 알림/확인 모달 -->
     <div id="customDialogModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-60 p-4">
         <div class="bg-white rounded-3xl w-full max-w-xs p-6 shadow-2xl text-center flex flex-col gap-5">
@@ -339,21 +313,23 @@
         </div>
     </div>
 
-    <!-- 파이어베이스 및 실시간 데이터 로직 구현 -->
+    <!-- 파이어베이스 및 데이터 로직 구현 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signInWithCustomToken, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signInWithCustomToken, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const OPERATOR_EMAIL = 'gimms2002@naver.com';
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'myeongpleton-notes-2026';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyAmNtN_-QDODsWvlfutmvUzSUgksEUSMmE",
-            authDomain: "kbookmark-26bd5.firebaseapp.com",
-            projectId: "kbookmark-26bd5",
-            storageBucket: "kbookmark-26bd5.firebasestorage.app",
-            messagingSenderId: "315317394216",
-            appId: "1:315317394216:web:538795d9951eded885ce1d"
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgkXKBkeul05Q-X6wmdN8yGhoS2PVXwmE",
+            authDomain: "mpltonnote.firebaseapp.com",
+            projectId: "mpltonnote",
+            storageBucket: "mpltonnote.firebasestorage.app",
+            messagingSenderId: "16917679499",
+            appId: "1:16917679499:web:58ff7dccbbdc96ef3a338e",
+            measurementId: "G-E5YZP0JXLZ"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -366,7 +342,6 @@
         let folders = ['국내주식', '미국성장주', '거시경제'];
         let currentFolder = 'all';
         let currentViewingId = null;
-        let isSignUpMode = false;
         let editingFolderTarget = null;
         let myNickname = '';
 
@@ -401,10 +376,10 @@
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
             updateAuthUI();
-            if (user) {
+            if (user && user.email) {
                 await loadUserProfile();
-                initFirestoreSync();
             }
+            initFirestoreSync();
         });
 
         initAuth();
@@ -432,7 +407,7 @@
             }
             const nick = document.getElementById('myNicknameInput').value.trim();
             if (!nick) {
-                showCustomAlert('설정할 필명을 입력해주세요.');
+                showCustomAlert('설정할 닉네임을 입력해주세요.');
                 return;
             }
             try {
@@ -443,9 +418,10 @@
                 myNickname = nick;
                 const authorInput = document.getElementById('commentAuthor');
                 if (authorInput) authorInput.value = myNickname;
-                showCustomAlert('필명이 저장되었습니다.');
+                showCustomAlert('닉네임이 저장되었습니다.');
+                closeLoginModal();
             } catch (err) {
-                showCustomAlert('필명 저장 중 오류가 발생했습니다.');
+                showCustomAlert('닉네임 저장 중 오류가 발생했습니다.');
             }
         }
 
@@ -454,20 +430,17 @@
             const btnEl = document.getElementById('authBtn');
             const writeMemoBtn = document.getElementById('writeMemoBtn');
             const addFolderBtn = document.getElementById('addFolderBtn');
-            const profileSection = document.getElementById('profileSection');
 
-            const isOperator = currentUser && (currentUser.email === OPERATOR_EMAIL || currentUser.email?.endsWith('@gmail.com'));
+            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
 
             if (currentUser && currentUser.email) {
-                infoEl.innerText = isOperator ? `운영자: ${currentUser.email}` : `로그인: ${currentUser.email}`;
-                btnEl.innerText = '로그아웃';
-                btnEl.className = 'text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition border border-red-200';
-                profileSection.classList.remove('hidden');
+                infoEl.innerText = isOperator ? `운영자: ${currentUser.email}` : `계정: ${currentUser.email}`;
+                btnEl.innerText = '계정 관리';
+                btnEl.className = 'text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition border border-emerald-200';
             } else {
                 infoEl.innerText = '방문자 모드';
                 btnEl.innerText = '로그인';
                 btnEl.className = 'text-xs font-bold text-toss-red hover:underline bg-toss-lightRed px-3 py-1.5 rounded-lg border border-red-100 shadow-2xs';
-                profileSection.classList.add('hidden');
             }
 
             if (isOperator) {
@@ -485,15 +458,56 @@
         window.handleAuthClick = function() {
             if (currentUser && currentUser.email) {
                 signOut(auth).then(() => {
+                    closeLoginModal();
                     showCustomAlert('로그아웃 되었습니다.');
                 });
             } else {
-                isSignUpMode = false;
-                updateAuthModalMode();
-                document.getElementById('loginEmail').value = OPERATOR_EMAIL;
+                document.getElementById('loginEmail').value = '';
                 document.getElementById('loginPassword').value = '';
+                
+                document.getElementById('loginFormContainer').classList.remove('hidden');
+                document.getElementById('loggedInPopupContent').classList.add('hidden');
+
                 document.getElementById('loginModal').style.display = 'flex';
             }
+        }
+
+        window.openAccountPopup = function() {
+            if (currentUser && currentUser.email) {
+                document.getElementById('popupUserEmail').innerText = currentUser.email;
+                document.getElementById('myNicknameInput').value = myNickname;
+                
+                document.getElementById('loginFormContainer').classList.add('hidden');
+                document.getElementById('loggedInPopupContent').classList.remove('hidden');
+                document.getElementById('loginModal').style.display = 'flex';
+            } else {
+                handleAuthClick();
+            }
+        }
+
+        document.getElementById('authBtn').onclick = function() {
+            if (currentUser && currentUser.email) {
+                openAccountPopup();
+            } else {
+                handleAuthClick();
+            }
+        };
+
+        window.handleAccountWithdrawal = function() {
+            showCustomConfirm('정말 회원탈퇴 및 관련 데이터를 삭제하시겠습니까?', async () => {
+                try {
+                    const user = auth.currentUser;
+                    if (user) {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', user.uid));
+                        await deleteUser(user);
+                        closeLoginModal();
+                        showCustomAlert('회원탈퇴가 정상적으로 처리되었습니다.');
+                    }
+                } catch (err) {
+                    console.error("Withdrawal error:", err);
+                    showCustomAlert('회원탈퇴 처리 중 오류가 발생했습니다. 다시 로그인 후 시도해주세요.');
+                }
+            });
         }
 
         window.handleGoogleLogin = async function() {
@@ -503,28 +517,11 @@
                 showCustomAlert('Google 계정으로 로그인되었습니다.');
             } catch (err) {
                 console.error("Google login error:", err);
-                showCustomAlert('Google 로그인에 실패했습니다.');
-            }
-        }
-
-        window.toggleAuthMode = function() {
-            isSignUpMode = !isSignUpMode;
-            updateAuthModalMode();
-        }
-
-        function updateAuthModalMode() {
-            const titleEl = document.getElementById('authModalTitle');
-            const submitBtn = document.getElementById('authSubmitBtn');
-            const toggleBtn = document.getElementById('authToggleBtn');
-
-            if (isSignUpMode) {
-                titleEl.innerText = '회원가입';
-                submitBtn.innerText = '회원가입하기';
-                toggleBtn.innerText = '이미 계정이 있으신가요? 로그인';
-            } else {
-                titleEl.innerText = '로그인';
-                submitBtn.innerText = '로그인하기';
-                toggleBtn.innerText = '계정이 없으신가요? 회원가입';
+                try {
+                    await signInWithRedirect(auth, googleProvider);
+                } catch (redirectErr) {
+                    showCustomAlert('Google 로그인 실패: 이메일 로그인을 이용해주세요.');
+                }
             }
         }
 
@@ -532,7 +529,7 @@
             document.getElementById('loginModal').style.display = 'none';
         }
 
-        window.executeAuthAction = async function() {
+        window.executeAuthAction = async function(isSignUp) {
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
             if (!email || !password) {
@@ -540,7 +537,7 @@
                 return;
             }
             try {
-                if (isSignUpMode) {
+                if (isSignUp) {
                     await createUserWithEmailAndPassword(auth, email, password);
                     closeLoginModal();
                     showCustomAlert('회원가입이 완료되었습니다!');
@@ -555,10 +552,8 @@
         }
 
         function initFirestoreSync() {
-            if (!currentUser) return;
-
             const foldersRef = collection(db, 'artifacts', appId, 'public', 'data', 'folders');
-            onSnapshot(foldersRef, (snapshot) => {
+            onSnapshot(foldersRef, async (snapshot) => {
                 if (!snapshot.empty) {
                     const loadedFolders = [];
                     snapshot.forEach(docSnap => {
@@ -566,12 +561,16 @@
                     });
                     if (loadedFolders.length > 0) folders = loadedFolders;
                 } else if (folders.length > 0) {
-                    folders.forEach(async f => {
-                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'folders', f), { name: f });
-                    });
+                    for (let f of folders) {
+                        try {
+                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'folders', f), { name: f });
+                        } catch (e) {
+                            console.warn("Folder init write ignored:", e.message);
+                        }
+                    }
                 }
                 renderFolders();
-            }, (error) => console.error("Folders sync error:", error));
+            }, (error) => console.warn("Folders sync note:", error.message));
 
             const cardsRef = collection(db, 'artifacts', appId, 'public', 'data', 'cards');
             onSnapshot(cardsRef, (snapshot) => {
@@ -584,11 +583,11 @@
                 if (currentViewingId) {
                     openDetailView(currentViewingId);
                 }
-            }, (error) => console.error("Cards sync error:", error));
+            }, (error) => console.warn("Cards sync note:", error.message));
         }
 
         window.openFolderModal = function() {
-            const isOperator = currentUser && (currentUser.email === OPERATOR_EMAIL || currentUser.email?.endsWith('@gmail.com'));
+            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
             if (!isOperator) return;
             document.getElementById('newFolderNameInput').value = '';
             document.getElementById('folderModal').style.display = 'flex';
@@ -615,7 +614,7 @@
         }
 
         window.openEditFolderModal = function(folderName) {
-            const isOperator = currentUser && (currentUser.email === OPERATOR_EMAIL || currentUser.email?.endsWith('@gmail.com'));
+            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
             if (!isOperator) return;
             editingFolderTarget = folderName;
             document.getElementById('editFolderNameInput').value = folderName;
@@ -657,11 +656,8 @@
         }
 
         window.deleteFolder = function(folderName) {
-            const isOperator = currentUser && (currentUser.email === OPERATOR_EMAIL || currentUser.email?.endsWith('@gmail.com'));
-            if (!isOperator) {
-                showCustomAlert('운영자만 폴더를 삭제할 수 있습니다.');
-                return;
-            }
+            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
+            if (!isOperator) return;
             showCustomConfirm(`"${folderName}" 폴더를 삭제하시겠습니까?`, async () => {
                 try {
                     await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'folders', folderName));
@@ -673,11 +669,8 @@
         }
 
         window.openWriteModal = function() {
-            const isOperator = currentUser && (currentUser.email === OPERATOR_EMAIL || currentUser.email?.endsWith('@gmail.com'));
-            if (!isOperator) {
-                showCustomAlert('운영자만 새 메모를 작성할 수 있습니다.');
-                return;
-            }
+            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
+            if (!isOperator) return;
             document.getElementById('writeImageBase64').value = '';
             if(document.getElementById('writeImageFile')) document.getElementById('writeImageFile').value = '';
             document.getElementById('writeModal').style.display = 'flex';
@@ -687,11 +680,8 @@
         }
 
         window.saveCard = async function() {
-            const isOperator = currentUser && (currentUser.email === OPERATOR_EMAIL || currentUser.email?.endsWith('@gmail.com'));
-            if (!isOperator) {
-                showCustomAlert('운영자만 작성할 수 있습니다.');
-                return;
-            }
+            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
+            if (!isOperator) return;
 
             const date = document.getElementById('writeDate').value;
             const folder = document.getElementById('writeFolderSelect').value;
@@ -739,7 +729,7 @@
 
             document.getElementById('detailMemo').innerText = card.memo;
 
-            const isOperator = currentUser && (currentUser.email === OPERATOR_EMAIL || currentUser.email?.endsWith('@gmail.com'));
+            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
             const opActions = document.getElementById('operatorCardActions');
             if (isOperator) {
                 opActions.classList.remove('hidden');
@@ -765,7 +755,7 @@
         }
 
         window.deleteCurrentCard = async function() {
-            const isOperator = currentUser && (currentUser.email === OPERATOR_EMAIL || currentUser.email?.endsWith('@gmail.com'));
+            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
             if (!isOperator) return;
             showCustomConfirm('이 메모를 영구적으로 삭제하시겠습니까?', async () => {
                 const card = cards.find(c => c.id === currentViewingId);
@@ -778,11 +768,8 @@
 
         window.deleteCardFromGrid = function(event, id) {
             event.stopPropagation();
-            const isOperator = currentUser && (currentUser.email === OPERATOR_EMAIL || currentUser.email?.endsWith('@gmail.com'));
-            if (!isOperator) {
-                showCustomAlert('운영자만 삭제할 수 있습니다.');
-                return;
-            }
+            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
+            if (!isOperator) return;
             showCustomConfirm('이 메모를 삭제하시겠습니까?', async () => {
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cards', String(id)));
             });
@@ -882,7 +869,7 @@
         function renderFolders() {
             const folderList = document.getElementById('folderList');
             const select = document.getElementById('writeFolderSelect');
-            const isOperator = currentUser && (currentUser.email === OPERATOR_EMAIL || currentUser.email?.endsWith('@gmail.com'));
+            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
             
             const isAllActive = currentFolder === 'all';
             folderList.innerHTML = `
@@ -912,7 +899,7 @@
         window.renderCards = function() {
             const container = document.getElementById('contentContainer');
             const keyword = document.getElementById('searchInput').value.toLowerCase();
-            const isOperator = currentUser && (currentUser.email === OPERATOR_EMAIL || currentUser.email?.endsWith('@gmail.com'));
+            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
 
             let filtered = cards.filter(card => {
                 const matchFolder = (currentFolder === 'all' || card.folder === currentFolder);
