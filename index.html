@@ -13,6 +13,7 @@
 
     <!-- Tailwind CSS CDN 및 Pretendard 폰트 -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
@@ -279,9 +280,13 @@
             <div class="flex justify-between items-center pt-3 border-t border-slate-200">
                 <div class="flex gap-2" id="ownerActionButtons">
                     <button id="ownerEditBtn" onclick="editCurrentCard()" class="hidden px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">수정하기</button>
-                    <button onclick="shareCurrentCard()" class="px-4 py-2 bg-blue-50 text-[#2563EB] hover:bg-blue-100 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                    <button onclick="shareCurrentCard()" class="px-4 py-2 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 border border-amber-200/60">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 3.185-9 7.115 0 2.557 1.707 4.8 4.27 6.054-.188.702-.682 2.545-.78 2.94-.122.49.18.483.378.352.157-.103 2.5-1.7 3.513-2.39.53.078 1.072.12 1.619.12 4.97 0 9-3.186 9-7.115S16.97 3 12 3z"/></svg>
+                        카카오톡 공유
+                    </button>
+                    <button onclick="copyCurrentLink()" class="px-4 py-2 bg-blue-50 text-[#2563EB] hover:bg-blue-100 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 border border-blue-200/60">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
-                        공유하기 (링크)
+                        링크 복사
                     </button>
                 </div>
                 <button onclick="deleteCurrentCard()" id="ownerDeleteButton" class="hidden px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">메모 삭제</button>
@@ -319,6 +324,10 @@
         let isOperator = false;
 
         let readPublicCardIds = JSON.parse(localStorage.getItem('mp_read_public_ids_v20')) || [];
+
+        if (window.Kakao && !window.Kakao.isInitialized()) {
+            window.Kakao.init('e5f9082cf11f122a39f34239e079005b');
+        }
 
         function escapeHtml(str) {
             if (!str) return '';
@@ -775,7 +784,49 @@
 
         window.shareCurrentCard = function() {
             const card = cards.find(c => c.id == currentViewingId);
-            if(!card) return;
+            if (!card) return;
+
+            const baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            const shareUrl = `${baseUrl}?id=${card.id}`;
+
+            if (window.Kakao && window.Kakao.isInitialized()) {
+                const imageUrl = card.image || 'https://placehold.co/1200x630/0F172A/3B82F6?text=Myungpleton+View';
+                const description = card.memo ? (card.memo.length > 80 ? card.memo.substring(0, 80) + '...' : card.memo) : '명플턴의 주식 투자 관점 및 인사이트';
+
+                try {
+                    window.Kakao.Share.sendDefault({
+                        objectType: 'feed',
+                        content: {
+                            title: card.title || '명플턴의 관점',
+                            description: description,
+                            imageUrl: imageUrl,
+                            link: {
+                                mobileWebUrl: shareUrl,
+                                webUrl: shareUrl,
+                            },
+                        },
+                        buttons: [
+                            {
+                                title: '관점 확인하기',
+                                link: {
+                                    mobileWebUrl: shareUrl,
+                                    webUrl: shareUrl,
+                                },
+                            },
+                        ],
+                    });
+                } catch (e) {
+                    console.error("Kakao share error:", e);
+                    window.copyCurrentLink();
+                }
+            } else {
+                window.copyCurrentLink();
+            }
+        };
+
+        window.copyCurrentLink = function() {
+            const card = cards.find(c => c.id == currentViewingId);
+            if (!card) return;
 
             const baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
             const shareUrl = `${baseUrl}?id=${card.id}`;
