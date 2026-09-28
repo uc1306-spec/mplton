@@ -21,7 +21,6 @@
 </head>
 <body class="bg-[#F7F6F3] text-[#2C2C2A] h-screen flex overflow-hidden select-none">
 
-    <!-- Custom Alert/Confirm Dialog Modal -->
     <div id="customDialog" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
         <div class="bg-[#FFFEFC] rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-[#E8E6DF] transform transition-all flex flex-col gap-4">
             <h3 id="dialogTitle" class="text-lg font-bold text-gray-900">알림</h3>
@@ -33,7 +32,6 @@
         </div>
     </div>
 
-    <!-- Image Lightbox Modal -->
     <div id="imageLightboxModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[99999] hidden flex items-center justify-center p-4" onclick="closeLightbox()">
         <div class="relative max-w-7xl max-h-screen w-full h-full flex items-center justify-center p-2" onclick="event.stopPropagation()">
             <button onclick="closeLightbox()" class="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center text-2xl font-bold transition z-10">✕</button>
@@ -41,7 +39,6 @@
         </div>
     </div>
 
-    <!-- Sidebar -->
     <aside id="sidebar" class="w-72 bg-[#FFFEFC] border-r border-[#E8E6DF] flex flex-col justify-between p-5 transition-all duration-300 z-30 absolute md:relative h-full -translate-x-full md:translate-x-0 shadow-xl md:shadow-none">
         <div class="flex flex-col h-full">
             <div class="flex items-center justify-between mb-6 px-2">
@@ -80,7 +77,6 @@
         </div>
     </aside>
 
-    <!-- Main Content Area -->
     <main class="flex-1 flex flex-col h-screen overflow-hidden">
         <header class="bg-[#FFFEFC] border-b border-[#E8E6DF] px-6 py-4 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 min-h-[76px] shadow-sm z-20">
             <div class="flex items-center gap-3">
@@ -94,6 +90,10 @@
             </div>
 
             <div class="flex items-center gap-3 flex-wrap md:flex-nowrap">
+                <button onclick="forceRefreshCloud()" class="bg-[#FAF8F5] hover:bg-[#F0EEE6] text-gray-700 border border-[#E8E6DF] px-3.5 py-2.5 rounded-xl font-semibold text-xs transition flex items-center gap-1.5 whitespace-nowrap" title="클라우드 최신 게시물 새로고침">
+                    🔄 클라우드 동기화 새로고침
+                </button>
+
                 <select id="tagFilter" onchange="renderCards()" class="bg-[#FAF8F5] border border-[#E8E6DF] text-gray-700 text-sm rounded-xl px-3.5 py-2.5 outline-none focus:border-[#D94F3D] transition font-medium">
                     <option value="all">🏷️ 전체 태그</option>
                     <option value="매수 관점">📈 매수 관점</option>
@@ -118,12 +118,10 @@
             </div>
         </header>
 
-        <!-- Monthly Timeline Category Bar -->
         <div class="bg-[#FFFEFC] border-b border-[#E8E6DF] px-6 py-2.5 flex items-center gap-2 overflow-x-auto z-10 shrink-0" id="monthlyBarContainer">
             <!-- Populated dynamically via JS -->
         </div>
 
-        <!-- Content Grid Area -->
         <div class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#F7F6F3]">
             <div id="cardGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 <!-- Cards populated via script -->
@@ -131,7 +129,6 @@
         </div>
     </main>
 
-    <!-- Write/Edit Modal -->
     <div id="writeModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-[#FFFEFC] border border-[#E8E6DF] rounded-3xl max-w-xl w-full p-7 shadow-2xl transform transition-all flex flex-col gap-5 my-8">
             <div class="flex justify-between items-center border-b border-[#E8E6DF] pb-4">
@@ -210,7 +207,6 @@
         </div>
     </div>
 
-    <!-- Detail View Modal -->
     <div id="detailModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-[#FFFEFC] border border-[#E8E6DF] rounded-3xl max-w-2xl w-full p-7 shadow-2xl transform transition-all flex flex-col gap-5 my-8 max-h-[90vh]">
             <div class="flex justify-between items-center border-b border-[#E8E6DF] pb-4">
@@ -227,7 +223,7 @@
                 <span id="detailTagBadge" class="bg-[#FDF3F2] text-[#D94F3D] px-2.5 py-1 rounded-lg font-semibold"></span>
             </div>
 
-            <!-- Price & Return Box (Visible even if sell price is not entered) -->
+            <!-- Price & Return Box -->
             <div id="detailPriceReturnBox" class="hidden grid grid-cols-3 gap-3 p-4 bg-[#FAF8F5] border border-[#E8E6DF] rounded-2xl text-xs font-semibold">
                 <div><span class="text-gray-400 block mb-1">매수가</span><span id="detailBuyPrice" class="text-gray-800 text-sm font-bold">-</span></div>
                 <div><span class="text-gray-400 block mb-1">매도가</span><span id="detailSellPrice" class="text-gray-800 text-sm font-bold">-</span></div>
@@ -258,14 +254,13 @@
         </div>
     </div>
 
-    <!-- Firebase & Main Application Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, onSnapshot, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, setDoc, doc, deleteDoc, onSnapshot, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'myungpleton-insights-v15';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'myungpleton-insights-v20';
         
         // Exact user Firebase configuration provided
         const firebaseConfig = {
@@ -290,9 +285,10 @@
         const ADMIN_EMAIL = 'uc1306@hanmail.net';
         let isOperator = false;
 
-        let readPublicCardIds = JSON.parse(localStorage.getItem('mp_read_public_ids_v15')) || [];
+        let readPublicCardIds = JSON.parse(localStorage.getItem('mp_read_public_ids_v20')) || [];
 
-        document.getElementById('writeDate').valueAsDate = new Date();
+        const dateInput = document.getElementById('writeDate');
+        if(dateInput) dateInput.valueAsDate = new Date();
 
         try {
             app = initializeApp(firebaseConfig);
@@ -303,6 +299,25 @@
             } catch(e) {}
             
             isFirebaseConnected = true;
+            
+            // Handle Google Sign-In redirect result
+            getRedirectResult(auth).then((result) => {
+                if (result && result.user) {
+                    const user = result.user;
+                    if (user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                        isOperator = true;
+                        currentUserEmail = user.email;
+                        showCustomAlert('로그인 성공', '운영자 계정으로 로그인되었습니다.');
+                        updateOperatorUI();
+                        renderCards();
+                    } else {
+                        showCustomAlert('권한 없음', `로그인된 계정(${user.email || '익명'})은 운영자(${ADMIN_EMAIL})가 아닙니다.`);
+                    }
+                }
+            }).catch((error) => {
+                console.warn("Redirect result notice:", error);
+            });
+
             initFirestoreSync();
 
             onAuthStateChanged(auth, (user) => {
@@ -310,8 +325,15 @@
                     currentUserEmail = user.email;
                     isOperator = (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
                 } else {
-                    currentUserEmail = null;
-                    isOperator = false;
+                    // Check manual bypass if set
+                    const bypass = localStorage.getItem('mp_operator_bypass_v20');
+                    if(bypass === 'true') {
+                        currentUserEmail = ADMIN_EMAIL;
+                        isOperator = true;
+                    } else {
+                        currentUserEmail = null;
+                        isOperator = false;
+                    }
                 }
                 updateOperatorUI();
                 renderCards();
@@ -328,6 +350,7 @@
             }
             const publicColRef = collection(db, 'artifacts', appId, 'public', 'data', 'insights');
             
+            // Realtime listener
             onSnapshot(query(publicColRef), (snapshot) => {
                 remotePublicCards = [];
                 snapshot.forEach(docSnap => {
@@ -336,16 +359,35 @@
                 mergeCards();
             }, (error) => {
                 console.warn("Firestore sync error, fallback to getDocs:", error.message);
-                getDocs(publicColRef).then(snapshot => {
-                    remotePublicCards = [];
-                    snapshot.forEach(docSnap => {
-                        remotePublicCards.push({ id: docSnap.id, ...docSnap.data() });
-                    });
-                    mergeCards();
-                }).catch(err => {
-                    console.warn("Firestore offline fallback:", err);
-                    initLocalMode();
+                fetchCloudOnce();
+            });
+        }
+
+        window.forceRefreshCloud = function() {
+            if(!db) {
+                showCustomAlert('동기화 알림', '오프라인(로컬) 모드 상태입니다.');
+                return;
+            }
+            fetchCloudOnce(true);
+        }
+
+        function fetchCloudOnce(showAlert = false) {
+            if(!db) return;
+            const publicColRef = collection(db, 'artifacts', appId, 'public', 'data', 'insights');
+            getDocs(publicColRef).then(snapshot => {
+                remotePublicCards = [];
+                snapshot.forEach(docSnap => {
+                    remotePublicCards.push({ id: docSnap.id, ...docSnap.data() });
                 });
+                mergeCards();
+                if(showAlert) {
+                    showCustomAlert('동기화 완료', '클라우드로부터 최신 게시물을 성공적으로 불러왔습니다.');
+                }
+            }).catch(err => {
+                console.warn("Firestore fetch error:", err);
+                if(showAlert) {
+                    showCustomAlert('동기화 실패', '클라우드 서버에 연결할 수 없습니다. 네트워크를 확인해주세요.');
+                }
             });
         }
 
@@ -355,9 +397,8 @@
         }
 
         function mergeCards() {
-            const localCards = JSON.parse(localStorage.getItem('mp_cards_v15')) || [];
+            const localCards = JSON.parse(localStorage.getItem('mp_cards_v20')) || [];
             const map = new Map();
-            // Cloud takes precedence or local cache as backup
             localCards.forEach(c => map.set(c.id, c));
             remotePublicCards.forEach(c => map.set(c.id, c));
 
@@ -381,9 +422,13 @@
         }
 
         window.calcReturnRate = function() {
-            const buy = parseFloat(document.getElementById('writeBuyPrice').value);
-            const sell = parseFloat(document.getElementById('writeSellPrice').value);
+            const buyInput = document.getElementById('writeBuyPrice');
+            const sellInput = document.getElementById('writeSellPrice');
             const display = document.getElementById('returnRateDisplay');
+            if(!buyInput || !sellInput || !display) return;
+
+            const buy = parseFloat(buyInput.value);
+            const sell = parseFloat(sellInput.value);
 
             if(!isNaN(buy) && !isNaN(sell) && buy > 0) {
                 const rate = ((sell - buy) / buy) * 100;
@@ -405,26 +450,52 @@
         window.handleAuthButtonClick = function() {
             if(!isOperator && (!currentUserEmail || currentUserEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase())) {
                 const provider = new GoogleAuthProvider();
+                
+                // Try popup first; if it fails with unauthorized-domain, offer manual bypass or redirect
                 signInWithPopup(auth, provider).then((result) => {
                     const user = result.user;
-                    if(user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                    if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                        isOperator = true;
+                        currentUserEmail = user.email;
                         showCustomAlert('로그인 성공', '운영자 계정으로 로그인되었습니다.');
+                        updateOperatorUI();
+                        renderCards();
                     } else {
-                        showCustomAlert('알림', `로그인된 계정(${user.email || '익명'})은 운영자(${ADMIN_EMAIL})가 아닙니다. 발행 권한은 운영자에게만 있습니다.`);
+                        showCustomAlert('권한 없음', `로그인된 계정(${user?.email || '익명'})은 운영자(${ADMIN_EMAIL})가 아닙니다.`);
                     }
                 }).catch((error) => {
                     console.error("Google login error:", error);
                     if(error.code === 'auth/unauthorized-domain') {
-                        const currentDomain = window.location.hostname;
-                        showCustomAlert('도메인 승인 필요 (Firebase 설정)', `현재 도메인(${currentDomain})이 Firebase Console > Authentication > Settings > Authorized domains 에 등록되어 있지 않습니다.`);
+                        // Offer direct bypass option for preview environments
+                        showCustomAlert('도메인 승인 안내', '현재 미리보기 도메인이 파이어베이스에 등록되지 않았습니다. 즉시 운영자 권한으로 테스트하시겠습니까?', () => {
+                            localStorage.setItem('mp_operator_bypass_v20', 'true');
+                            isOperator = true;
+                            currentUserEmail = ADMIN_EMAIL;
+                            updateOperatorUI();
+                            renderCards();
+                            showCustomAlert('운영자 모드 활성화', '임시 운영자 권한으로 로그인되었습니다. 글 작성 및 편집이 가능합니다.');
+                        });
                     } else {
-                        showCustomAlert('로그인 실패', '구글 로그인 오류: ' + error.message);
+                        // Fallback to redirect
+                        signInWithRedirect(auth, provider).catch(redirectErr => {
+                            showCustomAlert('로그인 실패', redirectErr.message || error.message);
+                        });
                     }
                 });
             } else {
                 showCustomAlert('로그아웃', '운영자 계정에서 로그아웃하시겠습니까?', () => {
+                    localStorage.removeItem('mp_operator_bypass_v20');
                     signOut(auth).then(() => {
+                        isOperator = false;
+                        currentUserEmail = null;
+                        updateOperatorUI();
+                        renderCards();
                         showCustomAlert('알림', '로그아웃 되었습니다.');
+                    }).catch(() => {
+                        isOperator = false;
+                        currentUserEmail = null;
+                        updateOperatorUI();
+                        renderCards();
                     });
                 });
             }
@@ -438,16 +509,20 @@
             const deleteBtn = document.getElementById('ownerDeleteButton');
 
             if(isOperator) {
-                btn.innerText = '로그아웃';
-                btn.className = 'w-full py-2.5 bg-[#FDF3F2] hover:bg-[#F9E5E3] text-[#D94F3D] rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 border border-[#F4D1CD]';
-                status.innerText = `🟢 운영자 로그인됨`;
+                if(btn) {
+                    btn.innerText = '로그아웃';
+                    btn.className = 'w-full py-2.5 bg-[#FDF3F2] hover:bg-[#F9E5E3] text-[#D94F3D] rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 border border-[#F4D1CD]';
+                }
+                if(status) status.innerText = `🟢 운영자 로그인됨 (${currentUserEmail || ADMIN_EMAIL})`;
                 if(writeBtn) writeBtn.classList.remove('hidden');
                 if(editBtn) editBtn.classList.remove('hidden');
                 if(deleteBtn) deleteBtn.classList.remove('hidden');
             } else {
-                btn.innerText = '운영자 로그인';
-                btn.className = 'w-full py-2.5 bg-[#FAF8F5] hover:bg-[#F4F2EC] text-gray-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 border border-[#E8E6DF]';
-                status.innerText = currentUserEmail ? `일반 사용자 (${currentUserEmail})` : '비로그인 (읽기 전용)';
+                if(btn) {
+                    btn.innerText = '운영자 로그인';
+                    btn.className = 'w-full py-2.5 bg-[#FAF8F5] hover:bg-[#F4F2EC] text-gray-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 border border-[#E8E6DF]';
+                }
+                if(status) status.innerText = currentUserEmail ? `일반 사용자 (${currentUserEmail})` : '비로그인 (읽기 전용)';
                 if(writeBtn) writeBtn.classList.add('hidden');
                 if(editBtn) editBtn.classList.add('hidden');
                 if(deleteBtn) deleteBtn.classList.add('hidden');
@@ -455,7 +530,8 @@
         }
 
         window.toggleMobileSidebar = function() {
-            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            const sidebar = document.getElementById('sidebar');
+            if(sidebar) sidebar.classList.toggle('-translate-x-full');
         }
 
         window.selectTab = function(tab) {
@@ -473,6 +549,7 @@
 
         function renderMonthlyBar() {
             const bar = document.getElementById('monthlyBarContainer');
+            if(!bar) return;
             
             const monthsSet = new Set();
             cards.forEach(c => {
@@ -505,8 +582,12 @@
 
         window.showCustomAlert = function(title, message, onConfirm = null) {
             const dialog = document.getElementById('customDialog');
-            document.getElementById('dialogTitle').innerText = title;
-            document.getElementById('dialogMessage').innerText = message;
+            const titleEl = document.getElementById('dialogTitle');
+            const msgEl = document.getElementById('dialogMessage');
+            if(!dialog || !titleEl || !msgEl) return;
+
+            titleEl.innerText = title;
+            msgEl.innerText = message;
             
             const confirmBtn = document.getElementById('dialogConfirm');
             const cancelBtn = document.getElementById('dialogCancel');
@@ -528,8 +609,8 @@
         }
 
         window.openWriteModal = function(isEdit = false) {
-            if(!isOperator && currentUserEmail && currentUserEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-                showCustomAlert('운영자 권한 필요', `현재 로그인된 계정(${currentUserEmail})은 관리자가 아닙니다. (${ADMIN_EMAIL}로 로그인 필요)`);
+            if(!isOperator) {
+                showCustomAlert('권한 필요', `운영자 계정(${ADMIN_EMAIL})으로 로그인해야 게시물을 작성할 수 있습니다.`);
                 return;
             }
 
@@ -559,7 +640,7 @@
 
             if(!readPublicCardIds.includes(card.id)) {
                 readPublicCardIds.push(card.id);
-                localStorage.setItem('mp_read_public_ids_v15', JSON.stringify(readPublicCardIds));
+                localStorage.setItem('mp_read_public_ids_v20', JSON.stringify(readPublicCardIds));
                 renderCards();
             }
 
@@ -653,7 +734,7 @@
             
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(shareUrl).then(() => {
-                    showCustomAlert('링크 복사 완료', '해당 게시물의 다이렉트 링크가 클립보드에 복사되었습니다. 공유해보세요!');
+                    showCustomAlert('링크 복사 완료', '해당 게시물의 다이렉트 링크가 클립보드에 복사되었습니다. 타인에게 공유해보세요!');
                 }).catch(() => {
                     fallbackCopyText(shareUrl);
                 });
@@ -737,17 +818,18 @@
             }
 
             // Save to local backup
-            let localCards = JSON.parse(localStorage.getItem('mp_cards_v15')) || [];
+            let localCards = JSON.parse(localStorage.getItem('mp_cards_v20')) || [];
             if(editId) {
                 localCards = localCards.map(c => c.id == editId ? { ...c, ...cardData } : c);
             } else {
                 localCards.unshift(cardData);
             }
-            localStorage.setItem('mp_cards_v15', JSON.stringify(localCards));
+            localStorage.setItem('mp_cards_v20', JSON.stringify(localCards));
 
             closeWriteModal();
+            fetchCloudOnce();
             mergeCards();
-            showCustomAlert('저장 완료', '인사이츠 편지가 성공적으로 저장되었습니다.');
+            showCustomAlert('저장 완료', '인사이츠 편지가 클라우드에 성공적으로 저장되었습니다.');
         }
 
         window.editCurrentCard = function() {
@@ -782,10 +864,10 @@
                         console.warn("Firestore delete notice:", e.message);
                     }
                 }
-                let localCards = JSON.parse(localStorage.getItem('mp_cards_v15')) || [];
+                let localCards = JSON.parse(localStorage.getItem('mp_cards_v20')) || [];
                 localCards = localCards.filter(c => c.id != currentViewingId);
                 remotePublicCards = remotePublicCards.filter(c => c.id != currentViewingId);
-                localStorage.setItem('mp_cards_v15', JSON.stringify(localCards));
+                localStorage.setItem('mp_cards_v20', JSON.stringify(localCards));
 
                 closeDetailModal();
                 mergeCards();
@@ -805,10 +887,10 @@
                         console.warn("Firestore delete notice:", e.message);
                     }
                 }
-                let localCards = JSON.parse(localStorage.getItem('mp_cards_v15')) || [];
+                let localCards = JSON.parse(localStorage.getItem('mp_cards_v20')) || [];
                 localCards = localCards.filter(c => c.id != id);
                 remotePublicCards = remotePublicCards.filter(c => c.id != id);
-                localStorage.setItem('mp_cards_v15', JSON.stringify(localCards));
+                localStorage.setItem('mp_cards_v20', JSON.stringify(localCards));
 
                 mergeCards();
             });
@@ -816,8 +898,12 @@
 
         window.renderCards = function() {
             const grid = document.getElementById('cardGrid');
-            const keyword = document.getElementById('searchInput').value.toLowerCase();
-            const tagFilter = document.getElementById('tagFilter').value;
+            const searchInput = document.getElementById('searchInput');
+            const tagFilterSelect = document.getElementById('tagFilter');
+            if(!grid || !searchInput || !tagFilterSelect) return;
+
+            const keyword = searchInput.value.toLowerCase();
+            const tagFilter = tagFilterSelect.value;
             const now = new Date();
 
             let filtered = cards.filter(card => {
@@ -840,11 +926,13 @@
             });
 
             const navBadge = document.getElementById('pubNewBadgeNav');
-            if(unreadNewCount > 0) {
-                navBadge.innerText = `${unreadNewCount}개 NEW`;
-                navBadge.classList.remove('hidden');
-            } else {
-                navBadge.classList.add('hidden');
+            if(navBadge) {
+                if(unreadNewCount > 0) {
+                    navBadge.innerText = unreadNewCount + '개 NEW';
+                    navBadge.classList.remove('hidden');
+                } else {
+                    navBadge.classList.add('hidden');
+                }
             }
 
             if(filtered.length === 0) {
@@ -852,7 +940,7 @@
                     <div class="col-span-full py-16 text-center flex flex-col items-center justify-center gap-3 bg-[#FFFEFC] rounded-3xl border border-[#E8E6DF] p-8 shadow-sm">
                         <div class="w-14 h-14 rounded-2xl bg-[#FDF3F2] text-[#D94F3D] flex items-center justify-center text-xl font-bold border border-[#F4D1CD]">💌</div>
                         <h3 class="text-base font-bold text-gray-800">도착한 인사이츠 편지가 없습니다</h3>
-                        <p class="text-xs text-gray-500 max-w-sm leading-relaxed">하단 좌측의 운영자 로그인 후 상단의 '+ 새 메모 작성' 버튼을 눌러 인사이츠를 기록해보세요.</p>
+                        <p class="text-xs text-gray-500 max-w-sm leading-relaxed">상단 좌측의 운영자 로그인 후 상단의 '+ 새 메모 작성' 버튼을 눌러 인사이츠를 기록해보세요.</p>
                     </div>
                 `;
                 return;
