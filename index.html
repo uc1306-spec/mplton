@@ -764,9 +764,13 @@
         window.closeDetailModal = function() {
             document.getElementById('detailModal').classList.add('hidden');
             currentViewingId = null;
-            if(history.pushState) {
-                const newurl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-                window.history.pushState({path:newurl},'',newurl);
+            try {
+                if (history.pushState && window.location.protocol.startsWith('http')) {
+                    const newurl = window.location.origin + window.location.pathname;
+                    window.history.pushState({path:newurl},'',newurl);
+                }
+            } catch(e) {
+                console.warn("History pushState skipped in preview environment:", e);
             }
         };
 
@@ -786,11 +790,19 @@
             const card = cards.find(c => c.id == currentViewingId);
             if (!card) return;
 
-            const baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            let baseUrl = window.location.href.split('?')[0];
+            if (baseUrl.startsWith('blob:')) {
+                baseUrl = 'https://mpltonnote.firebaseapp.com';
+            }
             const shareUrl = `${baseUrl}?id=${card.id}`;
 
             if (window.Kakao && window.Kakao.isInitialized()) {
-                const imageUrl = card.image || 'https://placehold.co/1200x630/0F172A/3B82F6?text=Myungpleton+View';
+                // Base64 이미지(data:image/...)나 로컬 이미지인 경우 5001 에러가 발생하므로 http(s) URL만 허용
+                let imageUrl = 'https://placehold.co/1200x630/0F172A/3B82F6?text=Myungpleton+View';
+                if (card.image && (card.image.startsWith('http://') || card.image.startsWith('https://'))) {
+                    imageUrl = card.image;
+                }
+
                 const description = card.memo ? (card.memo.length > 80 ? card.memo.substring(0, 80) + '...' : card.memo) : '명플턴의 주식 투자 관점 및 인사이트';
 
                 try {
@@ -828,7 +840,10 @@
             const card = cards.find(c => c.id == currentViewingId);
             if (!card) return;
 
-            const baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            let baseUrl = window.location.href.split('?')[0];
+            if (baseUrl.startsWith('blob:')) {
+                baseUrl = 'https://mpltonnote.firebaseapp.com';
+            }
             const shareUrl = `${baseUrl}?id=${card.id}`;
             
             if (navigator.clipboard && navigator.clipboard.writeText) {
