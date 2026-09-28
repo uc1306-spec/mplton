@@ -708,6 +708,8 @@
                 image: image || ''
             };
 
+            const targetId = editId ? editId.toString() : ('local-' + Date.now());
+
             if(isFirebaseConnected && db) {
                 try {
                     if(editId && !editId.toString().startsWith('default-') && !editId.toString().startsWith('local-')) {
@@ -723,7 +725,7 @@
             if(editId) {
                 localCards = localCards.map(c => c.id == editId ? { ...c, ...cardData } : c);
             } else {
-                const newCard = { id: 'local-' + Date.now(), ...cardData };
+                const newCard = { id: targetId, ...cardData };
                 localCards.unshift(newCard);
             }
             localStorage.setItem('mp_cards_v10', JSON.stringify(localCards));
