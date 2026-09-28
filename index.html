@@ -31,21 +31,6 @@
         </div>
     </div>
 
-    <div id="loginModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-[#FFFEFC] rounded-3xl max-w-sm w-full p-7 shadow-2xl border border-[#E8E6DF] transform transition-all flex flex-col gap-5">
-            <div class="flex justify-between items-center border-b border-[#E8E6DF] pb-3">
-                <h3 class="text-base font-bold text-gray-900">운영자 로그인</h3>
-                <button onclick="closeLoginModal()" class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition text-sm">✕</button>
-            </div>
-            <p class="text-xs text-gray-500 leading-relaxed">명플턴 뷰에 공식 인사이츠를 발행하려면 운영자 PIN 번호를 입력하세요.</p>
-            <div class="flex flex-col gap-2">
-                <label class="text-xs font-bold text-gray-500">운영자 PIN 번호</label>
-                <input type="password" id="loginPinInput" placeholder="PIN 번호 입력" class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition font-medium">
-            </div>
-            <button onclick="submitLogin()" class="w-full py-3 bg-[#D94F3D] hover:bg-[#C23F2D] text-white rounded-xl font-bold text-sm shadow-md transition">로그인</button>
-        </div>
-    </div>
-
     <div id="imageLightboxModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[99999] hidden flex items-center justify-center p-4" onclick="closeLightbox()">
         <div class="relative max-w-7xl max-h-screen w-full h-full flex items-center justify-center p-2" onclick="event.stopPropagation()">
             <button onclick="closeLightbox()" class="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center text-2xl font-bold transition z-10">✕</button>
@@ -86,7 +71,7 @@
         <div class="pt-4 border-t border-[#E8E6DF] flex flex-col gap-2">
             <div id="authStatusText" class="text-xs text-gray-500 text-center font-medium">비로그인 (읽기 전용)</div>
             <button onclick="handleAuthButtonClick()" id="operatorToggleBtn" class="w-full py-2.5 bg-[#FAF8F5] hover:bg-[#F4F2EC] text-gray-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 border border-[#E8E6DF]">
-                로그인
+                운영자 로그인
             </button>
         </div>
     </aside>
@@ -265,7 +250,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'myungpleton-insights-v10';
@@ -278,14 +263,15 @@
         let app, db, auth;
         let isFirebaseConnected = false;
         
-        let localCards = JSON.parse(localStorage.getItem('mp_cards_v10')) || [];
         let remotePublicCards = [];
         let cards = [];
         
         let currentTab = 'public';
         let currentMonthFilter = 'all';
         let currentViewingId = null;
-        let isOperator = localStorage.getItem('mp_is_operator') === 'true';
+        let currentUserEmail = null;
+        const ADMIN_EMAIL = 'uc1306@hanmail.net';
+        let isOperator = false;
 
         let readPublicCardIds = JSON.parse(localStorage.getItem('mp_read_public_ids')) || [];
 
@@ -296,12 +282,25 @@
             db = getFirestore(app);
             auth = getAuth(app);
             
+            // First authenticate anonymously or keep state to allow reading public collection
             signInAnonymously(auth).then(() => {
                 isFirebaseConnected = true;
                 initFirestoreSync();
             }).catch(err => {
-                console.log("Auth offline fallback:", err);
+                console.log("Auth fallback:", err);
                 initLocalMode();
+            });
+
+            onAuthStateChanged(auth, (user) => {
+                if(user && user.email) {
+                    currentUserEmail = user.email;
+                    isOperator = (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+                } else {
+                    currentUserEmail = null;
+                    isOperator = false;
+                }
+                updateOperatorUI();
+                renderCards();
             });
         } catch(e) {
             console.log("Running in offline local mode");
@@ -335,6 +334,7 @@
         }
 
         function mergeCards() {
+            const localCards = JSON.parse(localStorage.getItem('mp_cards_v10')) || [];
             const map = new Map();
             localCards.forEach(c => map.set(c.id, c));
             remotePublicCards.forEach(c => map.set(c.id, c));
@@ -379,37 +379,25 @@
         }
 
         window.handleAuthButtonClick = function() {
-            if(!isOperator) {
-                openLoginModal();
+            if(!isOperator && (!currentUserEmail || currentUserEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase())) {
+                const provider = new GoogleAuthProvider();
+                signInWithPopup(auth, provider).then((result) => {
+                    const user = result.user;
+                    if(user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                        showCustomAlert('로그인 성공', '운영자 계정으로 로그인되었습니다.');
+                    } else {
+                        showCustomAlert('알림', `현재 로그인된 계정(${user.email || '익명'}수행)은 운영자 계정(${ADMIN_EMAIL})이 아닙니다. 발행 권한은 운영자에게만 있습니다.`);
+                    }
+                }).catch((error) => {
+                    console.error("Google login error:", error);
+                    showCustomAlert('로그인 실패', '구글 로그인 중 오류가 발생했습니다: ' + error.message);
+                });
             } else {
                 showCustomAlert('로그아웃', '운영자 계정에서 로그아웃하시겠습니까?', () => {
-                    isOperator = false;
-                    localStorage.setItem('mp_is_operator', 'false');
-                    updateOperatorUI();
-                    showCustomAlert('알림', '로그아웃 되었습니다.');
+                    signOut(auth).then(() => {
+                        showCustomAlert('알림', '로그아웃 되었습니다.');
+                    });
                 });
-            }
-        }
-
-        window.openLoginModal = function() {
-            document.getElementById('loginPinInput').value = '';
-            document.getElementById('loginModal').classList.remove('hidden');
-        }
-
-        window.closeLoginModal = function() {
-            document.getElementById('loginModal').classList.add('hidden');
-        }
-
-        window.submitLogin = function() {
-            const pin = document.getElementById('loginPinInput').value;
-            if(pin === '2580') {
-                isOperator = true;
-                localStorage.setItem('mp_is_operator', 'true');
-                closeLoginModal();
-                updateOperatorUI();
-                showCustomAlert('로그인 성공', '운영자 권한으로 로그인되었습니다. 명플턴 뷰 발행 및 수정이 가능합니다.');
-            } else {
-                showCustomAlert('로그인 실패', '올바르지 않은 PIN 번호입니다.');
             }
         }
 
@@ -420,11 +408,11 @@
             if(isOperator) {
                 btn.innerText = '로그아웃';
                 btn.className = 'w-full py-2.5 bg-[#FDF3F2] hover:bg-[#F9E5E3] text-[#D94F3D] rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 border border-[#F4D1CD]';
-                status.innerText = '🟢 운영자 로그인 상태 (명플턴 뷰 발행 가능)';
+                status.innerText = `🟢 운영자 로그인됨 (${ADMIN_EMAIL})`;
             } else {
-                btn.innerText = '로그인';
+                btn.innerText = '운영자 로그인';
                 btn.className = 'w-full py-2.5 bg-[#FAF8F5] hover:bg-[#F4F2EC] text-gray-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 border border-[#E8E6DF]';
-                status.innerText = '비로그인 (읽기 전용)';
+                status.innerText = currentUserEmail ? `일반 사용자 (${currentUserEmail})` : '비로그인 (읽기 전용)';
             }
         }
 
@@ -504,7 +492,7 @@
 
         window.openWriteModal = function(isEdit = false) {
             if(!isOperator) {
-                showCustomAlert('운영자 권한 필요', '명플턴 뷰에 새 메모를 작성하려면 하단 좌측의 [로그인] 버튼을 눌러 운영자 PIN으로 로그인해주세요.');
+                showCustomAlert('운영자 권한 필요', '명플턴 뷰에 새 메모를 작성하려면 하단 좌측의 [운영자 로그인] 버튼을 눌러 운영자 계정으로 로그인해주세요.');
                 return;
             }
 
@@ -722,6 +710,7 @@
                 }
             }
 
+            let localCards = JSON.parse(localStorage.getItem('mp_cards_v10')) || [];
             if(editId) {
                 localCards = localCards.map(c => c.id == editId ? { ...c, ...cardData } : c);
             } else {
@@ -776,6 +765,7 @@
                         console.warn("Firestore delete restricted:", e.message);
                     }
                 }
+                let localCards = JSON.parse(localStorage.getItem('mp_cards_v10')) || [];
                 localCards = localCards.filter(c => c.id != currentViewingId);
                 remotePublicCards = remotePublicCards.filter(c => c.id != currentViewingId);
                 localStorage.setItem('mp_cards_v10', JSON.stringify(localCards));
@@ -803,6 +793,7 @@
                         console.warn("Firestore delete restricted:", e.message);
                     }
                 }
+                let localCards = JSON.parse(localStorage.getItem('mp_cards_v10')) || [];
                 localCards = localCards.filter(c => c.id != id);
                 remotePublicCards = remotePublicCards.filter(c => c.id != id);
                 localStorage.setItem('mp_cards_v10', JSON.stringify(localCards));
@@ -826,6 +817,24 @@
                                      (card.ticker && card.ticker.toLowerCase().includes(keyword));
                 return matchTag && matchMonth && matchKeyword;
             });
+
+            // NEW badge count update
+            let unreadNewCount = 0;
+            cards.forEach(card => {
+                const cardDate = new Date(card.date);
+                const diffHours = (now - cardDate) / (1000 * 60 * 60);
+                if(diffHours <= 24 && !readPublicCardIds.includes(card.id)) {
+                    unreadNewCount++;
+                }
+            });
+
+            const navBadge = document.getElementById('pubNewBadgeNav');
+            if(unreadNewCount > 0) {
+                navBadge.innerText = `${unreadNewCount}개 NEW`;
+                navBadge.classList.remove('hidden');
+            } else {
+                navBadge.classList.add('hidden');
+            }
 
             if(filtered.length === 0) {
                 grid.innerHTML = `
