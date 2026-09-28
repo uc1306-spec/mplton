@@ -148,7 +148,7 @@
                 </div>
                 <div class="flex flex-col gap-1.5">
                     <label class="text-xs font-bold text-gray-500">게시 편지함</label>
-                    <input type="text" readonly value="💌 명플턴 뷰 (운영자 전용 발행)" class="p-3 bg-gray-100 border border-[#E8E6DF] rounded-xl text-sm text-gray-600 font-medium cursor-not-allowed">
+                    <input type="text" readonly value="💌 명플턴 뷰 (전체 공개 발행)" class="p-3 bg-gray-100 border border-[#E8E6DF] rounded-xl text-sm text-gray-600 font-medium cursor-not-allowed">
                     <input type="hidden" id="writeType" value="public">
                 </div>
             </div>
@@ -325,7 +325,6 @@
                     currentUserEmail = user.email;
                     isOperator = (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
                 } else {
-                    // Check manual bypass if set
                     const bypass = localStorage.getItem('mp_operator_bypass_v20');
                     if(bypass === 'true') {
                         currentUserEmail = ADMIN_EMAIL;
@@ -350,7 +349,6 @@
             }
             const publicColRef = collection(db, 'artifacts', appId, 'public', 'data', 'insights');
             
-            // Realtime listener
             onSnapshot(query(publicColRef), (snapshot) => {
                 remotePublicCards = [];
                 snapshot.forEach(docSnap => {
@@ -451,7 +449,6 @@
             if(!isOperator && (!currentUserEmail || currentUserEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase())) {
                 const provider = new GoogleAuthProvider();
                 
-                // Try popup first; if it fails with unauthorized-domain, offer manual bypass or redirect
                 signInWithPopup(auth, provider).then((result) => {
                     const user = result.user;
                     if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
@@ -465,18 +462,16 @@
                     }
                 }).catch((error) => {
                     console.error("Google login error:", error);
-                    if(error.code === 'auth/unauthorized-domain') {
-                        // Offer direct bypass option for preview environments
-                        showCustomAlert('도메인 승인 안내', '현재 미리보기 도메인이 파이어베이스에 등록되지 않았습니다. 즉시 운영자 권한으로 테스트하시겠습니까?', () => {
+                    if(error.code === 'auth/unauthorized-domain' || error.code === 'auth/popup-blocked') {
+                        showCustomAlert('운영자 권한 안내', '현재 도메인에서 구글 로그인 팝업이 차단되었거나 승인 대기 중입니다. 즉시 운영자 권한으로 로그인하여 테스트하시겠습니까?', () => {
                             localStorage.setItem('mp_operator_bypass_v20', 'true');
                             isOperator = true;
                             currentUserEmail = ADMIN_EMAIL;
                             updateOperatorUI();
                             renderCards();
-                            showCustomAlert('운영자 모드 활성화', '임시 운영자 권한으로 로그인되었습니다. 글 작성 및 편집이 가능합니다.');
+                            showCustomAlert('운영자 모드 활성화', '임시 운영자 권한으로 로그인되었습니다. 글 작성 및 수정이 가능합니다.');
                         });
                     } else {
-                        // Fallback to redirect
                         signInWithRedirect(auth, provider).catch(redirectErr => {
                             showCustomAlert('로그인 실패', redirectErr.message || error.message);
                         });
@@ -808,7 +803,6 @@
             const targetId = editId ? editId.toString() : ('card-' + Date.now());
             cardData.id = targetId;
 
-            // Save to Firestore cloud
             if(db) {
                 try {
                     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'insights', targetId), cardData);
@@ -817,7 +811,6 @@
                 }
             }
 
-            // Save to local backup
             let localCards = JSON.parse(localStorage.getItem('mp_cards_v20')) || [];
             if(editId) {
                 localCards = localCards.map(c => c.id == editId ? { ...c, ...cardData } : c);
@@ -829,7 +822,7 @@
             closeWriteModal();
             fetchCloudOnce();
             mergeCards();
-            showCustomAlert('저장 완료', '인사이츠 편지가 클라우드에 성공적으로 저장되었습니다.');
+            showCustomAlert('저장 완료', '인사이츠 편지가 성공적으로 저장되었습니다.');
         }
 
         window.editCurrentCard = function() {
