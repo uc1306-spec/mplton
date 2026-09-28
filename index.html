@@ -67,17 +67,6 @@
                 </button>
             </div>
 
-            <div onclick="selectTab('public')" class="bg-[#FAF8F5] border border-[#E8E6DF] rounded-2xl p-4 mb-6 shadow-sm relative overflow-hidden cursor-pointer hover:border-[#D94F3D]/50 transition group">
-                <div class="absolute -right-3 -bottom-3 text-gray-200/60 pointer-events-none group-hover:text-[#D94F3D]/10 transition">
-                    <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                </div>
-                <div class="text-xs font-semibold text-gray-500 mb-1 flex items-center justify-between z-10 relative">
-                    <span class="tracking-wider">새로운 메모</span>
-                    <span id="totalMemoCount" class="bg-[#D94F3D] text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow-sm">0개</span>
-                </div>
-                <div class="text-xs text-gray-500 leading-relaxed z-10 relative">명플턴 뷰의 새로운 인사이츠를 확인하세요.</div>
-            </div>
-
             <div class="flex-1 overflow-y-auto pr-1">
                 <div class="flex items-center justify-between px-2 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
                     <span>아카이브 편지함</span>
@@ -139,8 +128,13 @@
             </div>
         </header>
 
+        <div class="bg-[#FFFEFC] border-b border-[#E8E6DF] px-6 py-2.5 flex items-center gap-2 overflow-x-auto z-10 shrink-0" id="monthlyBarContainer">
+            <!-- Dynamic monthly chips populated via script -->
+        </div>
+
         <div class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#F7F6F3]">
             <div id="cardGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <!-- Cards populated via script -->
             </div>
         </div>
     </main>
@@ -274,7 +268,7 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'myungpleton-insights-v9';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'myungpleton-insights-v10';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyDummyKeyForPreviewModeOnly",
             authDomain: "default.firebaseapp.com",
@@ -284,11 +278,12 @@
         let app, db, auth;
         let isFirebaseConnected = false;
         
-        let localCards = JSON.parse(localStorage.getItem('mp_cards_v9')) || [];
+        let localCards = JSON.parse(localStorage.getItem('mp_cards_v10')) || [];
         let remotePublicCards = [];
         let cards = [];
         
         let currentTab = 'public';
+        let currentMonthFilter = 'all';
         let currentViewingId = null;
         let isOperator = localStorage.getItem('mp_is_operator') === 'true';
 
@@ -329,6 +324,8 @@
             }, (error) => {
                 console.warn("Firestore permissions notice:", error.message);
                 initLocalMode();
+            }, (err) => {
+                console.warn("Firestore error:", err);
             });
         }
 
@@ -347,11 +344,10 @@
         }
 
         function initApp() {
+            renderMonthlyBar();
             renderCards();
-            updateTotalCount();
             updateOperatorUI();
 
-            // Check URL parameters for direct viewing (e.g. ?id=xyz)
             const urlParams = new URLSearchParams(window.location.search);
             const targetId = urlParams.get('id');
             if(targetId) {
@@ -438,31 +434,48 @@
 
         window.selectTab = function(tab) {
             currentTab = 'public';
+            currentMonthFilter = 'all';
+            renderMonthlyBar();
             renderCards();
             if(window.innerWidth < 768) toggleMobileSidebar();
         }
 
-        function updateTotalCount() {
-            const now = new Date();
-            let unreadPublicCount = 0;
+        window.selectMonthFilter = function(monthKey) {
+            currentMonthFilter = monthKey;
+            renderMonthlyBar();
+            renderCards();
+        }
 
+        function renderMonthlyBar() {
+            const bar = document.getElementById('monthlyBarContainer');
+            
+            const monthsSet = new Set();
             cards.forEach(c => {
-                const cardDate = new Date(c.date);
-                const diffHours = (now - cardDate) / (1000 * 60 * 60);
-                if(diffHours <= 24 && !readPublicCardIds.includes(c.id)) {
-                    unreadPublicCount++;
+                if(c.date && c.date.length >= 7) {
+                    monthsSet.add(c.date.substring(0, 7));
                 }
             });
 
-            document.getElementById('totalMemoCount').innerText = `${unreadPublicCount}개`;
+            const sortedMonths = Array.from(monthsSet).sort((a, b) => b.localeCompare(a));
 
-            const pubNavBadge = document.getElementById('pubNewBadgeNav');
-            if(unreadPublicCount > 0) {
-                pubNavBadge.innerText = `NEW ${unreadPublicCount}`;
-                pubNavBadge.classList.remove('hidden');
-            } else {
-                pubNavBadge.classList.add('hidden');
-            }
+            let html = `
+                <button onclick="selectMonthFilter('all')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${currentMonthFilter === 'all' ? 'bg-[#D94F3D] text-white shadow-sm' : 'bg-[#FAF8F5] text-gray-600 hover:bg-[#F0EEE6] border border-[#E8E6DF]'}">
+                    📅 전체 월별보기
+                </button>
+            `;
+
+            sortedMonths.forEach(m => {
+                const [year, month] = m.split('-');
+                const label = `${year}년 ${parseInt(month)}월`;
+                const isActive = (currentMonthFilter === m);
+                html += `
+                    <button onclick="selectMonthFilter('${m}')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${isActive ? 'bg-[#D94F3D] text-white shadow-sm' : 'bg-[#FAF8F5] text-gray-600 hover:bg-[#F0EEE6] border border-[#E8E6DF]'}">
+                        🗓️ ${label}
+                    </button>
+                `;
+            });
+
+            bar.innerHTML = html;
         }
 
         window.showCustomAlert = function(title, message, onConfirm = null) {
@@ -522,7 +535,6 @@
             if(!readPublicCardIds.includes(card.id)) {
                 readPublicCardIds.push(card.id);
                 localStorage.setItem('mp_read_public_ids', JSON.stringify(readPublicCardIds));
-                updateTotalCount();
                 renderCards();
             }
 
@@ -593,7 +605,6 @@
         window.closeDetailModal = function() {
             document.getElementById('detailModal').classList.add('hidden');
             currentViewingId = null;
-            // Clear URL query parameter if present
             if(history.pushState) {
                 const newurl = window.location.protocol + "//" + window.location.host + window.location.pathname;
                 window.history.pushState({path:newurl},'',newurl);
@@ -616,7 +627,6 @@
             const card = cards.find(c => c.id == currentViewingId);
             if(!card) return;
 
-            // Generate direct link URL with ID
             const baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
             const shareUrl = `${baseUrl}?id=${card.id}`;
             
@@ -716,7 +726,7 @@
                 const newCard = { id: 'local-' + Date.now(), ...cardData };
                 localCards.unshift(newCard);
             }
-            localStorage.setItem('mp_cards_v9', JSON.stringify(localCards));
+            localStorage.setItem('mp_cards_v10', JSON.stringify(localCards));
 
             closeWriteModal();
             mergeCards();
@@ -766,7 +776,7 @@
                 }
                 localCards = localCards.filter(c => c.id != currentViewingId);
                 remotePublicCards = remotePublicCards.filter(c => c.id != currentViewingId);
-                localStorage.setItem('mp_cards_v9', JSON.stringify(localCards));
+                localStorage.setItem('mp_cards_v10', JSON.stringify(localCards));
 
                 closeDetailModal();
                 mergeCards();
@@ -793,7 +803,7 @@
                 }
                 localCards = localCards.filter(c => c.id != id);
                 remotePublicCards = remotePublicCards.filter(c => c.id != id);
-                localStorage.setItem('mp_cards_v9', JSON.stringify(localCards));
+                localStorage.setItem('mp_cards_v10', JSON.stringify(localCards));
 
                 mergeCards();
             });
@@ -807,11 +817,12 @@
 
             let filtered = cards.filter(card => {
                 const matchTag = (tagFilter === 'all' || card.tag === tagFilter);
+                const matchMonth = (currentMonthFilter === 'all' || (card.date && card.date.startsWith(currentMonthFilter)));
                 const matchKeyword = card.title.toLowerCase().includes(keyword) || 
                                      card.memo.toLowerCase().includes(keyword) || 
                                      card.date.includes(keyword) || 
                                      (card.ticker && card.ticker.toLowerCase().includes(keyword));
-                return matchTag && matchKeyword;
+                return matchTag && matchMonth && matchKeyword;
             });
 
             if(filtered.length === 0) {
