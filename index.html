@@ -21,6 +21,7 @@
 </head>
 <body class="bg-[#F7F6F3] text-[#2C2C2A] h-screen flex overflow-hidden select-none">
 
+    <!-- Custom Alert/Confirm Dialog Modal -->
     <div id="customDialog" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
         <div class="bg-[#FFFEFC] rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-[#E8E6DF] transform transition-all flex flex-col gap-4">
             <h3 id="dialogTitle" class="text-lg font-bold text-gray-900">알림</h3>
@@ -32,6 +33,7 @@
         </div>
     </div>
 
+    <!-- Image Lightbox Modal -->
     <div id="imageLightboxModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[99999] hidden flex items-center justify-center p-4" onclick="closeLightbox()">
         <div class="relative max-w-7xl max-h-screen w-full h-full flex items-center justify-center p-2" onclick="event.stopPropagation()">
             <button onclick="closeLightbox()" class="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center text-2xl font-bold transition z-10">✕</button>
@@ -39,6 +41,7 @@
         </div>
     </div>
 
+    <!-- Sidebar -->
     <aside id="sidebar" class="w-72 bg-[#FFFEFC] border-r border-[#E8E6DF] flex flex-col justify-between p-5 transition-all duration-300 z-30 absolute md:relative h-full -translate-x-full md:translate-x-0 shadow-xl md:shadow-none">
         <div class="flex flex-col h-full">
             <div class="flex items-center justify-between mb-6 px-2">
@@ -77,6 +80,7 @@
         </div>
     </aside>
 
+    <!-- Main Content Area -->
     <main class="flex-1 flex flex-col h-screen overflow-hidden">
         <header class="bg-[#FFFEFC] border-b border-[#E8E6DF] px-6 py-4 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 min-h-[76px] shadow-sm z-20">
             <div class="flex items-center gap-3">
@@ -114,10 +118,12 @@
             </div>
         </header>
 
+        <!-- Monthly Timeline Category Bar -->
         <div class="bg-[#FFFEFC] border-b border-[#E8E6DF] px-6 py-2.5 flex items-center gap-2 overflow-x-auto z-10 shrink-0" id="monthlyBarContainer">
             <!-- Populated dynamically via JS -->
         </div>
 
+        <!-- Content Grid Area -->
         <div class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#F7F6F3]">
             <div id="cardGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 <!-- Cards populated via script -->
@@ -125,6 +131,7 @@
         </div>
     </main>
 
+    <!-- Write/Edit Modal -->
     <div id="writeModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-[#FFFEFC] border border-[#E8E6DF] rounded-3xl max-w-xl w-full p-7 shadow-2xl transform transition-all flex flex-col gap-5 my-8">
             <div class="flex justify-between items-center border-b border-[#E8E6DF] pb-4">
@@ -203,6 +210,7 @@
         </div>
     </div>
 
+    <!-- Detail View Modal -->
     <div id="detailModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-[#FFFEFC] border border-[#E8E6DF] rounded-3xl max-w-2xl w-full p-7 shadow-2xl transform transition-all flex flex-col gap-5 my-8 max-h-[90vh]">
             <div class="flex justify-between items-center border-b border-[#E8E6DF] pb-4">
@@ -219,6 +227,7 @@
                 <span id="detailTagBadge" class="bg-[#FDF3F2] text-[#D94F3D] px-2.5 py-1 rounded-lg font-semibold"></span>
             </div>
 
+            <!-- Price & Return Box (Visible even if sell price is not entered) -->
             <div id="detailPriceReturnBox" class="hidden grid grid-cols-3 gap-3 p-4 bg-[#FAF8F5] border border-[#E8E6DF] rounded-2xl text-xs font-semibold">
                 <div><span class="text-gray-400 block mb-1">매수가</span><span id="detailBuyPrice" class="text-gray-800 text-sm font-bold">-</span></div>
                 <div><span class="text-gray-400 block mb-1">매도가</span><span id="detailSellPrice" class="text-gray-800 text-sm font-bold">-</span></div>
@@ -249,13 +258,14 @@
         </div>
     </div>
 
+    <!-- Firebase & Main Application Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, onSnapshot, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'myungpleton-insights-v13';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'myungpleton-insights-v15';
         
         // Exact user Firebase configuration provided
         const firebaseConfig = {
@@ -274,14 +284,13 @@
         let remotePublicCards = [];
         let cards = [];
         
-        let currentTab = 'public';
         let currentMonthFilter = 'all';
         let currentViewingId = null;
         let currentUserEmail = null;
         const ADMIN_EMAIL = 'uc1306@hanmail.net';
         let isOperator = false;
 
-        let readPublicCardIds = JSON.parse(localStorage.getItem('mp_read_public_ids_v13')) || [];
+        let readPublicCardIds = JSON.parse(localStorage.getItem('mp_read_public_ids_v15')) || [];
 
         document.getElementById('writeDate').valueAsDate = new Date();
 
@@ -293,13 +302,8 @@
                 analytics = getAnalytics(app);
             } catch(e) {}
             
-            signInAnonymously(auth).then(() => {
-                isFirebaseConnected = true;
-                initFirestoreSync();
-            }).catch(err => {
-                console.log("Auth fallback:", err);
-                initLocalMode();
-            });
+            isFirebaseConnected = true;
+            initFirestoreSync();
 
             onAuthStateChanged(auth, (user) => {
                 if(user && user.email) {
@@ -313,7 +317,7 @@
                 renderCards();
             });
         } catch(e) {
-            console.log("Running in offline local mode");
+            console.warn("Firebase initialization notice:", e);
             initLocalMode();
         }
 
@@ -327,18 +331,19 @@
             onSnapshot(query(publicColRef), (snapshot) => {
                 remotePublicCards = [];
                 snapshot.forEach(docSnap => {
-                    remotePublicCards.push({ id: docSnap.id, ...docSnap.data(), isRemotePublic: true });
+                    remotePublicCards.push({ id: docSnap.id, ...docSnap.data() });
                 });
                 mergeCards();
             }, (error) => {
-                console.warn("Firestore sync notice:", error.message);
+                console.warn("Firestore sync error, fallback to getDocs:", error.message);
                 getDocs(publicColRef).then(snapshot => {
                     remotePublicCards = [];
                     snapshot.forEach(docSnap => {
-                        remotePublicCards.push({ id: docSnap.id, ...docSnap.data(), isRemotePublic: true });
+                        remotePublicCards.push({ id: docSnap.id, ...docSnap.data() });
                     });
                     mergeCards();
                 }).catch(err => {
+                    console.warn("Firestore offline fallback:", err);
                     initLocalMode();
                 });
             });
@@ -350,8 +355,9 @@
         }
 
         function mergeCards() {
-            const localCards = JSON.parse(localStorage.getItem('mp_cards_v13')) || [];
+            const localCards = JSON.parse(localStorage.getItem('mp_cards_v15')) || [];
             const map = new Map();
+            // Cloud takes precedence or local cache as backup
             localCards.forEach(c => map.set(c.id, c));
             remotePublicCards.forEach(c => map.set(c.id, c));
 
@@ -370,7 +376,7 @@
                 setTimeout(() => {
                     const found = cards.find(c => c.id == targetId);
                     if(found) openDetailModal(targetId);
-                }, 500);
+                }, 400);
             }
         }
 
@@ -410,7 +416,7 @@
                     console.error("Google login error:", error);
                     if(error.code === 'auth/unauthorized-domain') {
                         const currentDomain = window.location.hostname;
-                        showCustomAlert('도메인 승인 필요 (Firebase 설정)', `현재 도메인(${currentDomain})이 Firebase Console > Authentication > Settings > Authorized domains 에 등록되어 있지 않습니다.\n\n[임시 테스트 안내] Firebase 콘솔에 도메인을 추가하시거나, 오프라인 로컬 저장 모드에서 계속 테스트하실 수 있습니다.`);
+                        showCustomAlert('도메인 승인 필요 (Firebase 설정)', `현재 도메인(${currentDomain})이 Firebase Console > Authentication > Settings > Authorized domains 에 등록되어 있지 않습니다.`);
                     } else {
                         showCustomAlert('로그인 실패', '구글 로그인 오류: ' + error.message);
                     }
@@ -453,7 +459,6 @@
         }
 
         window.selectTab = function(tab) {
-            currentTab = 'public';
             currentMonthFilter = 'all';
             renderMonthlyBar();
             renderCards();
@@ -554,7 +559,7 @@
 
             if(!readPublicCardIds.includes(card.id)) {
                 readPublicCardIds.push(card.id);
-                localStorage.setItem('mp_read_public_ids_v13', JSON.stringify(readPublicCardIds));
+                localStorage.setItem('mp_read_public_ids_v15', JSON.stringify(readPublicCardIds));
                 renderCards();
             }
 
@@ -719,28 +724,26 @@
                 image: image || ''
             };
 
-            const targetId = editId ? editId.toString() : ('local-' + Date.now());
+            const targetId = editId ? editId.toString() : ('card-' + Date.now());
+            cardData.id = targetId;
 
-            if(isFirebaseConnected && db) {
+            // Save to Firestore cloud
+            if(db) {
                 try {
-                    if(editId && !editId.toString().startsWith('default-') && !editId.toString().startsWith('local-')) {
-                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'insights', editId.toString()), cardData);
-                    } else {
-                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'insights'), cardData);
-                    }
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'insights', targetId), cardData);
                 } catch(e) {
                     console.warn("Firestore write notice:", e.message);
                 }
             }
 
-            let localCards = JSON.parse(localStorage.getItem('mp_cards_v13')) || [];
+            // Save to local backup
+            let localCards = JSON.parse(localStorage.getItem('mp_cards_v15')) || [];
             if(editId) {
                 localCards = localCards.map(c => c.id == editId ? { ...c, ...cardData } : c);
             } else {
-                const newCard = { id: targetId, ...cardData };
-                localCards.unshift(newCard);
+                localCards.unshift(cardData);
             }
-            localStorage.setItem('mp_cards_v13', JSON.stringify(localCards));
+            localStorage.setItem('mp_cards_v15', JSON.stringify(localCards));
 
             closeWriteModal();
             mergeCards();
@@ -772,17 +775,17 @@
             if(!card) return;
 
             showCustomAlert('메모 삭제', '이 인사이츠 편지를 정말 삭제하시겠습니까?', async () => {
-                if(isFirebaseConnected && db && !card.id.toString().startsWith('default-') && !card.id.toString().startsWith('local-')) {
+                if(db) {
                     try {
                         await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'insights', card.id.toString()));
                     } catch(e) {
                         console.warn("Firestore delete notice:", e.message);
                     }
                 }
-                let localCards = JSON.parse(localStorage.getItem('mp_cards_v13')) || [];
+                let localCards = JSON.parse(localStorage.getItem('mp_cards_v15')) || [];
                 localCards = localCards.filter(c => c.id != currentViewingId);
                 remotePublicCards = remotePublicCards.filter(c => c.id != currentViewingId);
-                localStorage.setItem('mp_cards_v13', JSON.stringify(localCards));
+                localStorage.setItem('mp_cards_v15', JSON.stringify(localCards));
 
                 closeDetailModal();
                 mergeCards();
@@ -795,17 +798,17 @@
             if(!card) return;
 
             showCustomAlert('메모 삭제', '이 인사이츠 편지를 삭제하시겠습니까?', async () => {
-                if(isFirebaseConnected && db && !card.id.toString().startsWith('default-') && !card.id.toString().startsWith('local-')) {
+                if(db) {
                     try {
                         await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'insights', id.toString()));
                     } catch(e) {
                         console.warn("Firestore delete notice:", e.message);
                     }
                 }
-                let localCards = JSON.parse(localStorage.getItem('mp_cards_v13')) || [];
+                let localCards = JSON.parse(localStorage.getItem('mp_cards_v15')) || [];
                 localCards = localCards.filter(c => c.id != id);
                 remotePublicCards = remotePublicCards.filter(c => c.id != id);
-                localStorage.setItem('mp_cards_v13', JSON.stringify(localCards));
+                localStorage.setItem('mp_cards_v15', JSON.stringify(localCards));
 
                 mergeCards();
             });
