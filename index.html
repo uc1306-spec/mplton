@@ -3,997 +3,828 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>명플턴의 메모 - Pro Investment Insights</title>
-    <!-- Tailwind CSS for Toss-like modern styling -->
+    <title>명플턴의 인사이츠 아카이브</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        toss: {
-                            red: '#FF3B30',
-                            redHover: '#E03228',
-                            bg: '#F8F9FA',
-                            card: '#FFFFFF',
-                            textMain: '#191F28',
-                            textSub: '#8B95A1',
-                            border: '#E5E8EB',
-                            lightRed: '#FFF2F2'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        * {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-            box-sizing: border-box;
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e5e8eb; border-radius: 9999px; }
+        @keyframes pulseNew {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.05); }
         }
-        body {
-            background-color: #F8F9FA;
-            color: #191F28;
-        }
+        .new-badge-pulse { animation: pulseNew 2s infinite ease-in-out; }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="bg-[#F7F6F3] text-[#2C2C2A] h-screen flex overflow-hidden select-none">
 
-    <!-- 사이드바 네비게이션 -->
-    <aside class="w-72 bg-white border-r border-toss-border flex flex-col justify-between p-6 select-none z-10">
-        <div>
-            <!-- 로고 영역 -->
-            <div class="flex items-center gap-3 mb-6 px-2 cursor-pointer" onclick="goHome()">
-                <div class="w-10 h-10 rounded-2xl bg-toss-lightRed flex items-center justify-center text-toss-red font-bold text-xl shadow-xs">
-                    📝
+    <div id="customDialog" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-[#FFFEFC] rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-[#E8E6DF] transform transition-all flex flex-col gap-4">
+            <h3 id="dialogTitle" class="text-lg font-bold text-gray-900">알림</h3>
+            <p id="dialogMessage" class="text-sm text-gray-600 leading-relaxed"></p>
+            <div id="dialogButtons" class="flex gap-2 justify-end mt-2">
+                <button id="dialogConfirm" class="px-4 py-2 bg-[#D94F3D] text-white rounded-xl text-sm font-semibold hover:bg-[#C23F2D] transition shadow-sm">확인</button>
+                <button id="dialogCancel" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition hidden">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-[#FFFEFC] rounded-3xl max-w-sm w-full p-7 shadow-2xl border border-[#E8E6DF] transform transition-all flex flex-col gap-5">
+            <div class="flex justify-between items-center border-b border-[#E8E6DF] pb-3">
+                <h3 class="text-base font-bold text-gray-900">운영자 로그인</h3>
+                <button onclick="closeLoginModal()" class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition text-sm">✕</button>
+            </div>
+            <p class="text-xs text-gray-500 leading-relaxed">명플턴 뷰에 공식 인사이츠를 발행하려면 운영자 PIN 번호를 입력하세요.</p>
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-bold text-gray-500">운영자 PIN 번호</label>
+                <input type="password" id="loginPinInput" placeholder="PIN 번호 입력" class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition font-medium">
+            </div>
+            <button onclick="submitLogin()" class="w-full py-3 bg-[#D94F3D] hover:bg-[#C23F2D] text-white rounded-xl font-bold text-sm shadow-md transition">로그인</button>
+        </div>
+    </div>
+
+    <div id="imageLightboxModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[99999] hidden flex items-center justify-center p-4" onclick="closeLightbox()">
+        <div class="relative max-w-7xl max-h-screen w-full h-full flex items-center justify-center p-2" onclick="event.stopPropagation()">
+            <button onclick="closeLightbox()" class="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center text-2xl font-bold transition z-10">✕</button>
+            <img id="lightboxImg" class="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl" alt="원본 이미지 확대">
+        </div>
+    </div>
+
+    <aside id="sidebar" class="w-72 bg-[#FFFEFC] border-r border-[#E8E6DF] flex flex-col justify-between p-5 transition-all duration-300 z-30 absolute md:relative h-full -translate-x-full md:translate-x-0 shadow-xl md:shadow-none">
+        <div class="flex flex-col h-full">
+            <div class="flex items-center justify-between mb-6 px-2">
+                <div class="flex items-center gap-2.5 font-bold text-xl tracking-tight text-[#2C2C2A]">
+                    <div class="w-9 h-9 rounded-xl bg-[#FDF3F2] flex items-center justify-center text-[#D94F3D] shadow-inner border border-[#F4D1CD]">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <span>명플턴의 <span class="text-[#D94F3D]">레터함</span></span>
                 </div>
-                <div>
-                    <h1 class="font-bold text-lg text-toss-textMain tracking-tight">명플턴의 메모</h1>
-                    <p class="text-xs text-toss-textSub font-medium">Pro Investment View</p>
-                </div>
+                <button onclick="toggleMobileSidebar()" class="md:hidden text-gray-400 hover:text-gray-700 p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
 
-            <!-- 폴더 섹션 -->
-            <div class="space-y-3">
-                <div class="flex items-center justify-between px-2">
-                    <span class="text-xs font-bold text-toss-textSub tracking-wider uppercase">메모 분류 폴더</span>
-                    <!-- 운영자 한정 폴더 추가 버튼 -->
-                    <button id="addFolderBtn" class="w-6 h-6 rounded-lg bg-toss-lightRed text-toss-red font-bold flex items-center justify-center hover:bg-red-100 transition hidden" onclick="openFolderModal()" title="폴더 추가">+</button>
+            <div onclick="selectTab('public')" class="bg-[#FAF8F5] border border-[#E8E6DF] rounded-2xl p-4 mb-6 shadow-sm relative overflow-hidden cursor-pointer hover:border-[#D94F3D]/50 transition group">
+                <div class="absolute -right-3 -bottom-3 text-gray-200/60 pointer-events-none group-hover:text-[#D94F3D]/10 transition">
+                    <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
                 </div>
-                <ul id="folderList" class="space-y-1">
-                    <li class="flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold text-toss-red bg-toss-lightRed transition" onclick="selectFolder('all')">
-                        <span>📝 전체 보기</span>
+                <div class="text-xs font-semibold text-gray-500 mb-1 flex items-center justify-between z-10 relative">
+                    <span class="tracking-wider">새로운 메모</span>
+                    <span id="totalMemoCount" class="bg-[#D94F3D] text-white text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow-sm">0개</span>
+                </div>
+                <div class="text-xs text-gray-500 leading-relaxed z-10 relative">명플턴 뷰의 새로운 인사이츠를 확인하세요.</div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto pr-1">
+                <div class="flex items-center justify-between px-2 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    <span>아카이브 편지함</span>
+                </div>
+                <ul class="space-y-1.5">
+                    <li onclick="selectTab('public')" id="tabPublic" class="flex items-center justify-between px-3.5 py-3 rounded-xl cursor-pointer text-sm font-semibold transition bg-[#FDF3F2] text-[#D94F3D] border border-[#F4D1CD]">
+                        <span class="flex items-center gap-2.5">
+                            <svg class="w-4 h-4 text-[#D94F3D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            명플턴 뷰
+                        </span>
+                        <span id="pubNewBadgeNav" class="hidden text-[10px] bg-[#D94F3D] text-white font-bold px-1.5 py-0.5 rounded-full new-badge-pulse">NEW</span>
                     </li>
                 </ul>
             </div>
         </div>
 
-        <!-- 좌측 하단 로그인 / 회원가입 및 세션 관리 -->
-        <div id="authSection" class="pt-4 border-t border-toss-border flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-                <span id="authUserInfo" class="text-xs font-semibold text-toss-textMain truncate">방문자 모드</span>
-                <button id="authBtn" class="text-xs font-bold text-toss-red hover:underline bg-toss-lightRed px-3 py-1.5 rounded-lg border border-red-100 shadow-2xs">로그인</button>
-            </div>
-            <div class="text-center">
-                <span class="text-[11px] text-toss-textSub font-medium">© 2026 Myeongpleton Insights</span>
-            </div>
+        <div class="pt-4 border-t border-[#E8E6DF] flex flex-col gap-2">
+            <div id="authStatusText" class="text-xs text-gray-500 text-center font-medium">비로그인 (읽기 전용)</div>
+            <button onclick="handleAuthButtonClick()" id="operatorToggleBtn" class="w-full py-2.5 bg-[#FAF8F5] hover:bg-[#F4F2EC] text-gray-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 border border-[#E8E6DF]">
+                로그인
+            </button>
         </div>
     </aside>
 
-    <!-- 메인 컨텐츠 영역 (목록 뷰) -->
-    <main id="mainView" class="flex-1 flex flex-col h-screen overflow-hidden">
-        <header class="h-20 bg-white border-b border-toss-border px-8 flex justify-between items-center z-15 shrink-0">
-            <div class="flex items-center gap-4">
-                <h2 id="currentFolderTitle" class="text-2xl font-bold text-toss-textMain tracking-tight">전체 보기</h2>
-            </div>
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <header class="bg-[#FFFEFC] border-b border-[#E8E6DF] px-6 py-4 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 min-h-[76px] shadow-sm z-20">
             <div class="flex items-center gap-3">
-                <div class="relative">
-                    <input type="text" id="searchInput" placeholder="종목, 핵심 키워드 검색..." oninput="renderCards()" class="w-72 bg-toss-bg border border-toss-border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-toss-red focus:bg-white transition">
+                <button onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <div>
+                    <h1 id="currentTabTitle" class="text-xl font-bold tracking-tight text-[#2C2C2A]">명플턴 뷰</h1>
+                    <p id="currentTabSub" class="text-xs text-gray-500 font-medium">운영자가 공식 발행한 투자 인사이츠와 편지함입니다.</p>
                 </div>
-                <!-- 운영자 한정 새 메모 작성 버튼 -->
-                <button id="writeMemoBtn" onclick="openWriteModal()" class="bg-toss-red hover:bg-toss-redHover text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-sm transition flex items-center gap-2 hidden">
-                    <span>+ 새 메모 작성</span>
+            </div>
+
+            <div class="flex items-center gap-3 flex-wrap md:flex-nowrap">
+                <select id="tagFilter" onchange="renderCards()" class="bg-[#FAF8F5] border border-[#E8E6DF] text-gray-700 text-sm rounded-xl px-3.5 py-2.5 outline-none focus:border-[#D94F3D] transition font-medium">
+                    <option value="all">🏷️ 전체 태그</option>
+                    <option value="매수 관점">📈 매수 관점</option>
+                    <option value="매도 관점">📉 매도 관점</option>
+                    <option value="기업 분석">💡 기업 분석</option>
+                    <option value="익절">✨ 익절</option>
+                    <option value="손절">🛡️ 손절</option>
+                    <option value="기타">📌 기타</option>
+                </select>
+
+                <div class="relative flex-1 md:w-64">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input type="text" id="searchInput" placeholder="종목, 키워드 검색..." oninput="renderCards()" class="w-full pl-10 pr-4 py-2.5 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition">
+                </div>
+
+                <button onclick="openWriteModal()" class="bg-[#D94F3D] hover:bg-[#C23F2D] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-red-500/10 transition flex items-center gap-2 whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                    새 메모 작성
                 </button>
             </div>
         </header>
 
-        <div class="flex-1 p-8 overflow-y-auto">
-            <div id="contentContainer" class="space-y-8">
-                <!-- 월별로 그룹화되어 렌더링됩니다 -->
+        <div class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#F7F6F3]">
+            <div id="cardGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             </div>
         </div>
     </main>
 
-    <!-- 상세 페이지 뷰 (팝업 대신 전체 화면으로 전환) -->
-    <main id="detailView" class="flex-1 flex flex-col h-screen overflow-hidden hidden bg-white">
-        <header class="h-20 border-b border-toss-border px-8 flex justify-between items-center z-15 shrink-0 bg-white">
-            <button onclick="goHome()" class="flex items-center gap-2 font-bold text-sm text-toss-textMain hover:text-toss-red transition bg-toss-bg px-4 py-2.5 rounded-xl border border-toss-border">
-                <span>← 목록으로 돌아가기</span>
-            </button>
-            <div id="operatorCardActions" class="hidden flex gap-2">
-                <button onclick="deleteCurrentCard()" class="text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 px-4 py-2.5 rounded-xl transition border border-red-100">이 메모 영구 삭제</button>
+    <div id="writeModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-[#FFFEFC] border border-[#E8E6DF] rounded-3xl max-w-xl w-full p-7 shadow-2xl transform transition-all flex flex-col gap-5 my-8">
+            <div class="flex justify-between items-center border-b border-[#E8E6DF] pb-4">
+                <div>
+                    <h2 id="writeModalHeading" class="text-lg font-bold text-gray-900">새 주식 인사이츠 기록</h2>
+                    <p class="text-xs text-gray-500 font-medium">명플턴 뷰 인사이츠 편지글을 기록하세요 (운영자 전용).</p>
+                </div>
+                <button onclick="closeWriteModal()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition">✕</button>
             </div>
-        </header>
 
-        <div class="flex-1 p-10 overflow-y-auto flex justify-start">
-            <div class="w-full max-w-4xl space-y-8 pb-20 text-left">
-                <div class="flex flex-col gap-3 border-b border-toss-border pb-6 text-left">
-                    <div class="flex items-center gap-3">
-                        <span id="detailFolderBadge" class="text-xs bg-toss-lightRed text-toss-red font-bold px-3 py-1 rounded-full"></span>
-                        <span id="detailDateTag" class="text-xs text-toss-textSub font-medium"></span>
-                    </div>
-                    <h2 id="detailTitle" class="text-3xl font-extrabold text-toss-textMain tracking-tight text-left"></h2>
+            <input type="hidden" id="editCardId" value="">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500">기록 일자</label>
+                    <input type="date" id="writeDate" class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition font-medium">
                 </div>
-
-                <div class="space-y-6 text-left">
-                    <img id="detailImg" src="" alt="첨부 이미지" class="w-full max-h-[500px] object-cover rounded-3xl hidden border border-toss-border shadow-md">
-                    <div id="detailMemo" class="text-base text-toss-textMain leading-relaxed whitespace-pre-wrap bg-toss-bg p-8 rounded-3xl border border-toss-border shadow-xs text-left"></div>
-                </div>
-
-                <!-- 댓글 및 토론방 영역 -->
-                <div class="border-t border-toss-border pt-8 space-y-6 text-left">
-                    <div class="flex items-center justify-between">
-                        <h4 class="text-lg font-bold text-toss-textMain flex items-center gap-2">
-                            <span>💬 투자자 토론방 / 의견 남기기</span>
-                            <span id="commentCountBadge" class="text-xs bg-toss-lightRed text-toss-red px-2.5 py-0.5 rounded-full font-bold">0</span>
-                        </h4>
-                    </div>
-
-                    <!-- 댓글 입력 폼 -->
-                    <div class="bg-toss-bg p-5 rounded-3xl border border-toss-border space-y-3">
-                        <div class="flex flex-col md:flex-row gap-3">
-                            <input type="text" id="commentAuthor" placeholder="필명 입력" class="w-full md:w-48 bg-white border border-toss-border rounded-xl px-4 py-3 text-sm outline-none focus:border-toss-red font-medium">
-                            <input type="text" id="commentText" placeholder="투자 관점에 대한 의견을 남겨보세요..." onkeydown="if(event.key==='Enter') addComment()" class="flex-1 bg-white border border-toss-border rounded-xl px-4 py-3 text-sm outline-none focus:border-toss-red">
-                            <button onclick="addComment()" class="bg-toss-red hover:bg-toss-redHover text-white font-bold px-6 py-3 rounded-xl text-sm transition shadow-sm shrink-0">등록하기</button>
-                        </div>
-                    </div>
-
-                    <!-- 댓글 목록 리스트 -->
-                    <div id="commentList" class="space-y-3">
-                        <!-- 댓글이 동적으로 렌더링됩니다 -->
-                    </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500">게시 편지함</label>
+                    <input type="text" readonly value="💌 명플턴 뷰 (운영자 전용 발행)" class="p-3 bg-gray-100 border border-[#E8E6DF] rounded-xl text-sm text-gray-600 font-medium cursor-not-allowed">
+                    <input type="hidden" id="writeType" value="public">
                 </div>
             </div>
-        </div>
-    </main>
 
-    <!-- 메모 작성 모달 (운영자 전용) -->
-    <div id="writeModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl w-full max-w-lg p-7 shadow-2xl flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center">
-                <h3 class="text-xl font-bold text-toss-textMain">새 주식 인사이츠 작성</h3>
-                <button onclick="closeWriteModal()" class="w-8 h-8 rounded-full bg-toss-bg text-toss-textSub hover:bg-gray-200 font-bold flex items-center justify-center">×</button>
-            </div>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">작성일자</label>
-                    <input type="date" id="writeDate" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">분류 폴더</label>
-                    <select id="writeFolderSelect" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red"></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">투자 관점 태그</label>
-                    <select id="writeTag" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
-                        <option value="📈 매수 관점">📈 매수 관점</option>
-                        <option value="📉 매도 관점">📉 매도 관점</option>
-                        <option value="💡 기업 분석">💡 기업 분석</option>
-                        <option value="⚠️ 리스크 점검">⚠️ 리스크 점검</option>
-                        <option value="🌐 거시경제">🌐 거시경제</option>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500">태그</label>
+                    <select id="writeTag" class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition font-medium">
+                        <option value="매수 관점">📈 매수 관점</option>
+                        <option value="매도 관점">📉 매도 관점</option>
+                        <option value="기업 분석">💡 기업 분석</option>
+                        <option value="익절">✨ 익절</option>
+                        <option value="손절">🛡️ 손절</option>
+                        <option value="기타">📌 기타</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">메모 제목 / 종목명</label>
-                    <input type="text" id="writeTitle" placeholder="예: 엔비디아 2분기 실적 리뷰 및 밸류에이션 점검" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500">종목 코드/티커</label>
+                    <input type="text" id="writeTicker" placeholder="예: NVDA" class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition font-medium">
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">차트/썸네일 이미지 첨부 (직접 업로드)</label>
-                    <input type="file" id="writeImageFile" accept="image/*" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red file:mr-4 file:py-1 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-toss-red file:text-white hover:file:bg-toss-redHover cursor-pointer">
-                    <input type="hidden" id="writeImageBase64" value="">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">상세 리포트 및 투자 뷰 내용</label>
-                    <textarea id="writeMemo" rows="6" placeholder="핵심 투자포인트, 목표주가, 리스크 요인 등을 상세히 작성하세요..." class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red resize-none"></textarea>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500">매수가 (원/달러)</label>
+                    <input type="number" id="writeBuyPrice" placeholder="예: 120000" oninput="calcReturnRate()" class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition font-medium">
                 </div>
             </div>
 
-            <button onclick="saveCard()" class="w-full bg-toss-red hover:bg-toss-redHover text-white font-bold py-3.5 rounded-xl text-sm shadow-md transition">인사이츠 발행하기</button>
-        </div>
-    </div>
-
-    <!-- 폴더 추가 모달 (운영자 전용) -->
-    <div id="folderModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl flex flex-col gap-4">
-            <div class="flex justify-between items-center">
-                <h3 class="text-lg font-bold text-toss-textMain">새 분류 폴더 추가</h3>
-                <button onclick="closeFolderModal()" class="w-7 h-7 rounded-full bg-toss-bg text-toss-textSub font-bold flex items-center justify-center">×</button>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">폴더 이름</label>
-                <input type="text" id="newFolderNameInput" placeholder="예: 반도체 밸류체인" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
-            </div>
-            <button onclick="confirmAddFolder()" class="w-full bg-toss-red text-white font-bold py-3 rounded-xl text-sm shadow-md">폴더 생성</button>
-        </div>
-    </div>
-
-    <!-- 폴더명 수정 모달 (운영자 전용) -->
-    <div id="editFolderModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl flex flex-col gap-4">
-            <div class="flex justify-between items-center">
-                <h3 class="text-lg font-bold text-toss-textMain">분류 폴더명 수정</h3>
-                <button onclick="closeEditFolderModal()" class="w-7 h-7 rounded-full bg-toss-bg text-toss-textSub font-bold flex items-center justify-center">×</button>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-toss-textSub mb-1.5 uppercase">새 폴더 이름</label>
-                <input type="text" id="editFolderNameInput" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
-            </div>
-            <button onclick="confirmEditFolder()" class="w-full bg-toss-red text-white font-bold py-3 rounded-xl text-sm shadow-md">수정 완료</button>
-        </div>
-    </div>
-
-    <!-- 로그인 / 회원가입 및 프로필 관리 모달 -->
-    <div id="loginModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl w-full max-w-md p-7 shadow-2xl flex flex-col gap-5">
-            <div class="flex justify-between items-center border-b border-toss-border pb-4">
-                <div class="flex items-center gap-2">
-                    <span class="text-toss-red font-bold text-lg">→</span>
-                    <h3 id="authModalTitle" class="text-lg font-bold text-toss-textMain">로그인 / 회원가입</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500">매도가 (원/달러)</label>
+                    <input type="number" id="writeSellPrice" placeholder="예: 150000" oninput="calcReturnRate()" class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition font-medium">
                 </div>
-                <button onclick="closeLoginModal()" class="w-7 h-7 rounded-full bg-toss-bg text-toss-textSub font-bold flex items-center justify-center">×</button>
-            </div>
-            
-            <!-- 로그인 전 폼 -->
-            <div id="loginFormContainer" class="space-y-4">
-                <button onclick="handleGoogleLogin()" class="w-full bg-white border border-toss-border hover:bg-gray-50 text-toss-textMain font-bold py-3 rounded-2xl text-sm shadow-xs flex items-center justify-center gap-3 transition">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.19v3.15C3.17 21.3 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.19C.43 8.12 0 9.87 0 11.7s.43 3.58 1.19 5.12l4.09-2.55z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.17 2.7 1.19 6.58l4.09 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
-                    <span>구글 계정으로 로그인</span>
-                </button>
-
-                <div class="flex items-center my-2">
-                    <div class="flex-1 border-t border-toss-border"></div>
-                    <span class="px-3 text-xs text-toss-textSub">또는 이메일로 로그인</span>
-                    <div class="flex-1 border-t border-toss-border"></div>
-                </div>
-
-                <div class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-bold text-toss-textSub mb-1 uppercase">이메일</label>
-                        <input type="email" id="loginEmail" placeholder="이메일 입력" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-toss-textSub mb-1 uppercase">비밀번호</label>
-                        <input type="password" id="loginPassword" placeholder="비밀번호 입력" class="w-full bg-toss-bg border border-toss-border rounded-xl p-3 text-sm outline-none focus:border-toss-red">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-bold text-gray-500">자동 계산된 수익률</label>
+                    <div id="returnRateDisplay" class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm font-bold text-gray-400 flex items-center h-[46px]">
+                        매수가와 매도가 입력 시 자동 계산
                     </div>
                 </div>
-                <div class="flex gap-2 pt-1">
-                    <button onclick="executeAuthAction(false)" class="flex-1 bg-toss-red hover:bg-toss-redHover text-white font-bold py-3 rounded-2xl text-sm shadow-md transition">로그인</button>
-                    <button onclick="executeAuthAction(true)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-toss-textMain font-bold py-3 rounded-2xl text-sm transition">회원가입</button>
-                </div>
             </div>
 
-            <!-- 로그인된 상태의 팝업 뷰 -->
-            <div id="loggedInPopupContent" class="space-y-4 hidden">
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-bold text-gray-500">메모 제목 / 종목명</label>
+                <input type="text" id="writeTitle" placeholder="예: 엔비디아 2분기 실적 리뷰 및 가이던스 분석" class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition font-medium">
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-bold text-gray-500">차트/스크린샷 첨부</label>
+                <input type="file" id="writeImage" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#FDF3F2] file:text-[#D94F3D] hover:file:bg-[#F9E5E3] cursor-pointer">
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-bold text-gray-500">상세 편지 내용</label>
+                <textarea id="writeMemo" rows="5" placeholder="투자 핵심 지표, 밸류에이션, 목표가, 체크포인트 등을 자유롭게 기록하세요..." class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition font-medium resize-y"></textarea>
+            </div>
+
+            <button onclick="saveCard()" class="w-full py-3.5 bg-[#D94F3D] hover:bg-[#C23F2D] text-white rounded-2xl font-bold text-sm shadow-lg shadow-red-500/10 transition">인사이츠 저장하기</button>
+        </div>
+    </div>
+
+    <div id="detailModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-[#FFFEFC] border border-[#E8E6DF] rounded-3xl max-w-2xl w-full p-7 shadow-2xl transform transition-all flex flex-col gap-5 my-8 max-h-[90vh]">
+            <div class="flex justify-between items-center border-b border-[#E8E6DF] pb-4">
                 <div>
-                    <span class="block text-xs font-bold text-toss-textSub mb-1.5">현재 로그인된 계정</span>
-                    <div id="popupUserEmail" class="w-full bg-toss-bg border border-toss-border rounded-2xl p-3.5 text-sm font-bold text-emerald-600 truncate"></div>
+                    <span id="detailTypeBadge" class="bg-[#FDF3F2] text-[#D94F3D] text-[10px] px-2.5 py-1 rounded-md font-bold mb-1.5 inline-block">명플턴 뷰</span>
+                    <span id="detailTickerBadge" class="hidden bg-gray-100 text-gray-800 text-[10px] px-2.5 py-1 rounded-md font-bold mb-1.5 inline-block"></span>
+                    <h2 id="detailTitle" class="text-xl font-bold text-gray-900 leading-snug"></h2>
                 </div>
+                <button onclick="closeDetailModal()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition">✕</button>
+            </div>
 
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label class="block text-xs font-bold text-toss-textSub">내 닉네임 설정</label>
+            <div class="flex justify-between items-center text-xs text-gray-500 font-medium">
+                <span id="detailDateTag"></span>
+                <span id="detailTagBadge" class="bg-[#FDF3F2] text-[#D94F3D] px-2.5 py-1 rounded-lg font-semibold"></span>
+            </div>
+
+            <div id="detailPriceReturnBox" class="hidden grid grid-cols-3 gap-3 p-4 bg-[#FAF8F5] border border-[#E8E6DF] rounded-2xl text-xs font-semibold">
+                <div><span class="text-gray-400 block mb-1">매수가</span><span id="detailBuyPrice" class="text-gray-800 text-sm font-bold">-</span></div>
+                <div><span class="text-gray-400 block mb-1">매도가</span><span id="detailSellPrice" class="text-gray-800 text-sm font-bold">-</span></div>
+                <div><span class="text-gray-400 block mb-1">수익률</span><span id="detailReturnRate" class="text-sm font-bold">-</span></div>
+            </div>
+
+            <div class="overflow-y-auto flex-1 space-y-4 pr-1">
+                <div class="relative group cursor-pointer inline-block w-full" onclick="openLightboxFromDetail()">
+                    <img id="detailImg" class="w-full max-h-72 object-cover rounded-2xl bg-gray-100 shadow-sm hidden transition group-hover:brightness-95" alt="첨부 이미지">
+                    <div id="imageZoomHint" class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition rounded-2xl flex items-center justify-center text-white text-xs font-bold gap-1.5 pointer-events-none hidden">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg>
+                        클릭하여 원본 보기
                     </div>
-                    <div class="flex gap-2">
-                        <input type="text" id="myNicknameInput" placeholder="사용할 닉네임을 입력하세요" class="flex-1 bg-toss-bg border border-toss-border rounded-2xl px-4 py-3 text-sm outline-none focus:border-emerald-500 font-medium">
-                        <button onclick="saveMyNickname()" class="px-5 py-3 text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 rounded-2xl transition shadow-xs shrink-0">저장</button>
-                    </div>
                 </div>
+                <div id="detailMemo" class="text-sm leading-relaxed text-gray-800 bg-[#FAF8F5] border border-[#E8E6DF] p-5 rounded-2xl whitespace-pre-wrap break-all"></div>
+            </div>
 
-                <div class="pt-2 space-y-2">
-                    <button onclick="handleAuthClick()" class="w-full bg-gray-100 hover:bg-gray-200 text-toss-textMain font-bold py-3.5 rounded-2xl text-sm transition">로그아웃</button>
-                    <button onclick="handleAccountWithdrawal()" class="w-full bg-red-50 hover:bg-red-100 text-red-500 font-bold py-3.5 rounded-2xl text-sm transition border border-red-100">회원탈퇴 및 데이터 삭제</button>
+            <div class="flex justify-between items-center pt-3 border-t border-[#E8E6DF]">
+                <div class="flex gap-2" id="ownerActionButtons">
+                    <button onclick="editCurrentCard()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">수정하기</button>
                 </div>
-
-                <div class="text-center pt-2">
-                    <button onclick="closeLoginModal()" class="text-xs font-bold text-toss-textSub hover:text-toss-textMain">닫기</button>
-                </div>
+                <button onclick="deleteCurrentCard()" id="ownerDeleteButton" class="px-4 py-2 bg-[#FDF3F2] hover:bg-[#F9E5E3] text-[#D94F3D] rounded-xl text-xs font-semibold transition flex items-center gap-1.5">메모 삭제</button>
             </div>
         </div>
     </div>
 
-    <!-- 커스텀 알림/확인 모달 -->
-    <div id="customDialogModal" class="fixed inset-0 bg-black/40 backdrop-blur-xs hidden items-center justify-center z-60 p-4">
-        <div class="bg-white rounded-3xl w-full max-w-xs p-6 shadow-2xl text-center flex flex-col gap-5">
-            <p id="customDialogMsg" class="text-sm font-semibold text-toss-textMain leading-relaxed">알림 메시지</p>
-            <div id="customDialogActions" class="flex gap-2 justify-center">
-                <button onclick="closeCustomDialog()" class="w-full bg-toss-red text-white font-bold py-2.5 rounded-xl text-sm shadow-sm">확인</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 파이어베이스 및 데이터 로직 구현 -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, signInWithCustomToken, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, setDoc, doc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const OPERATOR_EMAIL = 'gimms2002@naver.com';
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'myeongpleton-notes-2026';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'myungpleton-insights-v9';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDummyKeyForPreviewModeOnly",
+            authDomain: "default.firebaseapp.com",
+            projectId: "default-project"
+        };
+
+        let app, db, auth;
+        let isFirebaseConnected = false;
         
-        const firebaseConfig = {
-            apiKey: "AIzaSyDgkXKBkeul05Q-X6wmdN8yGhoS2PVXwmE",
-            authDomain: "mpltonnote.firebaseapp.com",
-            projectId: "mpltonnote",
-            storageBucket: "mpltonnote.firebasestorage.app",
-            messagingSenderId: "16917679499",
-            appId: "1:16917679499:web:58ff7dccbbdc96ef3a338e",
-            measurementId: "G-E5YZP0JXLZ"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const googleProvider = new GoogleAuthProvider();
-
-        let currentUser = null;
+        let localCards = JSON.parse(localStorage.getItem('mp_cards_v9')) || [];
+        let remotePublicCards = [];
         let cards = [];
-        let folders = ['국내주식', '미국성장주', '거시경제'];
-        let currentFolder = 'all';
+        
+        let currentTab = 'public';
         let currentViewingId = null;
-        let editingFolderTarget = null;
-        let myNickname = '';
+        let isOperator = localStorage.getItem('mp_is_operator') === 'true';
 
-        const dateInput = document.getElementById('writeDate');
-        if(dateInput) dateInput.valueAsDate = new Date();
+        let readPublicCardIds = JSON.parse(localStorage.getItem('mp_read_public_ids')) || [];
 
-        const imageFileInput = document.getElementById('writeImageFile');
-        if(imageFileInput) {
-            imageFileInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = function(uploadEvent) {
-                    document.getElementById('writeImageBase64').value = uploadEvent.target.result;
-                };
-                reader.readAsDataURL(file);
+        document.getElementById('writeDate').valueAsDate = new Date();
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            signInAnonymously(auth).then(() => {
+                isFirebaseConnected = true;
+                initFirestoreSync();
+            }).catch(err => {
+                console.log("Auth offline fallback:", err);
+                initLocalMode();
             });
-        }
-
-        async function initAuth() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (err) {
-                console.error("Auth init error:", err);
-            }
-        }
-
-        onAuthStateChanged(auth, async (user) => {
-            currentUser = user;
-            updateAuthUI();
-            if (user && user.email) {
-                await loadUserProfile();
-            }
-            initFirestoreSync();
-        });
-
-        initAuth();
-
-        async function loadUserProfile() {
-            if (!currentUser) return;
-            try {
-                const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', currentUser.uid);
-                const snap = await getDoc(userDocRef);
-                if (snap.exists()) {
-                    myNickname = snap.data().nickname || '';
-                    document.getElementById('myNicknameInput').value = myNickname;
-                    const authorInput = document.getElementById('commentAuthor');
-                    if (authorInput) authorInput.value = myNickname;
-                }
-            } catch (err) {
-                console.error("Load profile error:", err);
-            }
-        }
-
-        window.saveMyNickname = async function() {
-            if (!currentUser) {
-                showCustomAlert('로그인 후 이용 가능합니다.');
-                return;
-            }
-            const nick = document.getElementById('myNicknameInput').value.trim();
-            if (!nick) {
-                showCustomAlert('설정할 닉네임을 입력해주세요.');
-                return;
-            }
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', currentUser.uid), {
-                    nickname: nick,
-                    email: currentUser.email || 'anonymous'
-                });
-                myNickname = nick;
-                const authorInput = document.getElementById('commentAuthor');
-                if (authorInput) authorInput.value = myNickname;
-                showCustomAlert('닉네임이 저장되었습니다.');
-                closeLoginModal();
-            } catch (err) {
-                showCustomAlert('닉네임 저장 중 오류가 발생했습니다.');
-            }
-        }
-
-        function updateAuthUI() {
-            const infoEl = document.getElementById('authUserInfo');
-            const btnEl = document.getElementById('authBtn');
-            const writeMemoBtn = document.getElementById('writeMemoBtn');
-            const addFolderBtn = document.getElementById('addFolderBtn');
-
-            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
-
-            if (currentUser && currentUser.email) {
-                infoEl.innerText = isOperator ? `운영자: ${currentUser.email}` : `계정: ${currentUser.email}`;
-                btnEl.innerText = '계정 관리';
-                btnEl.className = 'text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition border border-emerald-200';
-            } else {
-                infoEl.innerText = '방문자 모드';
-                btnEl.innerText = '로그인';
-                btnEl.className = 'text-xs font-bold text-toss-red hover:underline bg-toss-lightRed px-3 py-1.5 rounded-lg border border-red-100 shadow-2xs';
-            }
-
-            if (isOperator) {
-                writeMemoBtn.classList.remove('hidden');
-                addFolderBtn.classList.remove('hidden');
-            } else {
-                writeMemoBtn.classList.add('hidden');
-                addFolderBtn.classList.add('hidden');
-            }
-
-            renderFolders();
-            renderCards();
-        }
-
-        window.handleAuthClick = function() {
-            if (currentUser && currentUser.email) {
-                signOut(auth).then(() => {
-                    closeLoginModal();
-                    showCustomAlert('로그아웃 되었습니다.');
-                });
-            } else {
-                document.getElementById('loginEmail').value = '';
-                document.getElementById('loginPassword').value = '';
-                
-                document.getElementById('loginFormContainer').classList.remove('hidden');
-                document.getElementById('loggedInPopupContent').classList.add('hidden');
-
-                document.getElementById('loginModal').style.display = 'flex';
-            }
-        }
-
-        window.openAccountPopup = function() {
-            if (currentUser && currentUser.email) {
-                document.getElementById('popupUserEmail').innerText = currentUser.email;
-                document.getElementById('myNicknameInput').value = myNickname;
-                
-                document.getElementById('loginFormContainer').classList.add('hidden');
-                document.getElementById('loggedInPopupContent').classList.remove('hidden');
-                document.getElementById('loginModal').style.display = 'flex';
-            } else {
-                handleAuthClick();
-            }
-        }
-
-        document.getElementById('authBtn').onclick = function() {
-            if (currentUser && currentUser.email) {
-                openAccountPopup();
-            } else {
-                handleAuthClick();
-            }
-        };
-
-        window.handleAccountWithdrawal = function() {
-            showCustomConfirm('정말 회원탈퇴 및 관련 데이터를 삭제하시겠습니까?', async () => {
-                try {
-                    const user = auth.currentUser;
-                    if (user) {
-                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', user.uid));
-                        await deleteUser(user);
-                        closeLoginModal();
-                        showCustomAlert('회원탈퇴가 정상적으로 처리되었습니다.');
-                    }
-                } catch (err) {
-                    console.error("Withdrawal error:", err);
-                    showCustomAlert('회원탈퇴 처리 중 오류가 발생했습니다. 다시 로그인 후 시도해주세요.');
-                }
-            });
-        }
-
-        window.handleGoogleLogin = async function() {
-            try {
-                await signInWithPopup(auth, googleProvider);
-                closeLoginModal();
-                showCustomAlert('Google 계정으로 로그인되었습니다.');
-            } catch (err) {
-                console.error("Google login error:", err);
-                try {
-                    await signInWithRedirect(auth, googleProvider);
-                } catch (redirectErr) {
-                    showCustomAlert('Google 로그인 실패: 이메일 로그인을 이용해주세요.');
-                }
-            }
-        }
-
-        window.closeLoginModal = function() {
-            document.getElementById('loginModal').style.display = 'none';
-        }
-
-        window.executeAuthAction = async function(isSignUp) {
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-            if (!email || !password) {
-                showCustomAlert('이메일과 비밀번호를 입력해주세요.');
-                return;
-            }
-            try {
-                if (isSignUp) {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                    closeLoginModal();
-                    showCustomAlert('회원가입이 완료되었습니다!');
-                } else {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    closeLoginModal();
-                    showCustomAlert('로그인되었습니다.');
-                }
-            } catch (err) {
-                showCustomAlert('인증 실패: 입력 정보를 다시 확인해주세요.');
-            }
+        } catch(e) {
+            console.log("Running in offline local mode");
+            initLocalMode();
         }
 
         function initFirestoreSync() {
-            const foldersRef = collection(db, 'artifacts', appId, 'public', 'data', 'folders');
-            onSnapshot(foldersRef, async (snapshot) => {
-                if (!snapshot.empty) {
-                    const loadedFolders = [];
-                    snapshot.forEach(docSnap => {
-                        loadedFolders.push(docSnap.data().name);
-                    });
-                    if (loadedFolders.length > 0) folders = loadedFolders;
-                } else if (folders.length > 0) {
-                    for (let f of folders) {
-                        try {
-                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'folders', f), { name: f });
-                        } catch (e) {
-                            console.warn("Folder init write ignored:", e.message);
-                        }
-                    }
-                }
-                renderFolders();
-            }, (error) => console.warn("Folders sync note:", error.message));
-
-            const cardsRef = collection(db, 'artifacts', appId, 'public', 'data', 'cards');
-            onSnapshot(cardsRef, (snapshot) => {
-                cards = [];
+            if(!db) {
+                initLocalMode();
+                return;
+            }
+            const publicColRef = collection(db, 'artifacts', appId, 'public', 'data', 'insights');
+            
+            onSnapshot(query(publicColRef), (snapshot) => {
+                remotePublicCards = [];
                 snapshot.forEach(docSnap => {
-                    cards.push({ docId: docSnap.id, ...docSnap.data() });
+                    remotePublicCards.push({ id: docSnap.id, ...docSnap.data(), isRemotePublic: true });
                 });
-                cards.sort((a, b) => b.id - a.id);
-                renderCards();
-                if (currentViewingId) {
-                    openDetailView(currentViewingId);
-                }
-            }, (error) => console.warn("Cards sync note:", error.message));
-        }
-
-        window.openFolderModal = function() {
-            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
-            if (!isOperator) return;
-            document.getElementById('newFolderNameInput').value = '';
-            document.getElementById('folderModal').style.display = 'flex';
-        }
-        window.closeFolderModal = function() {
-            document.getElementById('folderModal').style.display = 'none';
-        }
-        window.confirmAddFolder = async function() {
-            const folderName = document.getElementById('newFolderNameInput').value.trim();
-            if (!folderName) {
-                showCustomAlert('폴더 이름을 입력하세요.');
-                return;
-            }
-            if (folders.includes(folderName)) {
-                showCustomAlert('이미 존재하는 폴더 이름입니다.');
-                return;
-            }
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'folders', folderName), { name: folderName });
-                closeFolderModal();
-            } catch (err) {
-                showCustomAlert('폴더 추가 중 오류가 발생했습니다.');
-            }
-        }
-
-        window.openEditFolderModal = function(folderName) {
-            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
-            if (!isOperator) return;
-            editingFolderTarget = folderName;
-            document.getElementById('editFolderNameInput').value = folderName;
-            document.getElementById('editFolderModal').style.display = 'flex';
-        }
-        window.closeEditFolderModal = function() {
-            document.getElementById('editFolderModal').style.display = 'none';
-            editingFolderTarget = null;
-        }
-        window.confirmEditFolder = async function() {
-            const newName = document.getElementById('editFolderNameInput').value.trim();
-            if (!newName) {
-                showCustomAlert('새 폴더 이름을 입력하세요.');
-                return;
-            }
-            if (folders.includes(newName)) {
-                showCustomAlert('이미 존재하는 폴더 이름입니다.');
-                return;
-            }
-            const oldName = editingFolderTarget;
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'folders', newName), { name: newName });
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'folders', oldName));
-                
-                for (let card of cards) {
-                    if (card.folder === oldName) {
-                        card.folder = newName;
-                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cards', String(card.id)), card);
-                    }
-                }
-
-                if (currentFolder === oldName) currentFolder = newName;
-                closeEditFolderModal();
-                showCustomAlert('폴더명이 수정되었습니다.');
-            } catch (err) {
-                console.error("Folder rename error:", err);
-                showCustomAlert('폴더명 수정 중 오류가 발생했습니다.');
-            }
-        }
-
-        window.deleteFolder = function(folderName) {
-            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
-            if (!isOperator) return;
-            showCustomConfirm(`"${folderName}" 폴더를 삭제하시겠습니까?`, async () => {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'folders', folderName));
-                    if (currentFolder === folderName) currentFolder = 'all';
-                } catch (err) {
-                    showCustomAlert('폴더 삭제 실패');
-                }
+                mergeCards();
+            }, (error) => {
+                console.warn("Firestore permissions notice:", error.message);
+                initLocalMode();
             });
         }
 
-        window.openWriteModal = function() {
-            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
-            if (!isOperator) return;
-            document.getElementById('writeImageBase64').value = '';
-            if(document.getElementById('writeImageFile')) document.getElementById('writeImageFile').value = '';
-            document.getElementById('writeModal').style.display = 'flex';
-        }
-        window.closeWriteModal = function() {
-            document.getElementById('writeModal').style.display = 'none';
+        function initLocalMode() {
+            isFirebaseConnected = false;
+            mergeCards();
         }
 
-        window.saveCard = async function() {
-            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
-            if (!isOperator) return;
+        function mergeCards() {
+            const map = new Map();
+            localCards.forEach(c => map.set(c.id, c));
+            remotePublicCards.forEach(c => map.set(c.id, c));
 
-            const date = document.getElementById('writeDate').value;
-            const folder = document.getElementById('writeFolderSelect').value;
-            const tag = document.getElementById('writeTag').value;
-            const title = document.getElementById('writeTitle').value.trim();
-            const image = document.getElementById('writeImageBase64').value;
-            const memo = document.getElementById('writeMemo').value.trim();
+            cards = Array.from(map.values()).sort((a,b) => new Date(b.date) - new Date(a.date));
+            initApp();
+        }
 
-            if (!date || !title || !memo) {
-                showCustomAlert('날짜, 제목, 메모 내용을 모두 입력해주세요.');
+        function initApp() {
+            renderCards();
+            updateTotalCount();
+            updateOperatorUI();
+        }
+
+        window.calcReturnRate = function() {
+            const buy = parseFloat(document.getElementById('writeBuyPrice').value);
+            const sell = parseFloat(document.getElementById('writeSellPrice').value);
+            const display = document.getElementById('returnRateDisplay');
+
+            if(!isNaN(buy) && !isNaN(sell) && buy > 0) {
+                const rate = ((sell - buy) / buy) * 100;
+                const formatted = rate.toFixed(2);
+                if(rate > 0) {
+                    display.innerHTML = `<span class="text-red-500 font-bold">+${formatted}% (수익 📈)</span>`;
+                } else if(rate < 0) {
+                    display.innerHTML = `<span class="text-blue-500 font-bold">${formatted}% (손실 📉)</span>`;
+                } else {
+                    display.innerHTML = `<span class="text-gray-600 font-bold">0.00% (본전)</span>`;
+                }
+            } else {
+                display.innerHTML = `<span class="text-gray-400">매수가와 매도가 입력 시 자동 계산</span>`;
+            }
+        }
+
+        window.handleAuthButtonClick = function() {
+            if(!isOperator) {
+                openLoginModal();
+            } else {
+                showCustomAlert('로그아웃', '운영자 계정에서 로그아웃하시겠습니까?', () => {
+                    isOperator = false;
+                    localStorage.setItem('mp_is_operator', 'false');
+                    updateOperatorUI();
+                    showCustomAlert('알림', '로그아웃 되었습니다.');
+                });
+            }
+        }
+
+        window.openLoginModal = function() {
+            document.getElementById('loginPinInput').value = '';
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        window.closeLoginModal = function() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        window.submitLogin = function() {
+            const pin = document.getElementById('loginPinInput').value;
+            if(pin === '2580') {
+                isOperator = true;
+                localStorage.setItem('mp_is_operator', 'true');
+                closeLoginModal();
+                updateOperatorUI();
+                showCustomAlert('로그인 성공', '운영자 권한으로 로그인되었습니다. 명플턴 뷰 발행 및 수정이 가능합니다.');
+            } else {
+                showCustomAlert('로그인 실패', '올바르지 않은 PIN 번호입니다.');
+            }
+        }
+
+        function updateOperatorUI() {
+            const btn = document.getElementById('operatorToggleBtn');
+            const status = document.getElementById('authStatusText');
+
+            if(isOperator) {
+                btn.innerText = '로그아웃';
+                btn.className = 'w-full py-2.5 bg-[#FDF3F2] hover:bg-[#F9E5E3] text-[#D94F3D] rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 border border-[#F4D1CD]';
+                status.innerText = '🟢 운영자 로그인 상태 (명플턴 뷰 발행 가능)';
+            } else {
+                btn.innerText = '로그인';
+                btn.className = 'w-full py-2.5 bg-[#FAF8F5] hover:bg-[#F4F2EC] text-gray-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 border border-[#E8E6DF]';
+                status.innerText = '비로그인 (읽기 전용)';
+            }
+        }
+
+        window.toggleMobileSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+        }
+
+        window.selectTab = function(tab) {
+            currentTab = 'public';
+            renderCards();
+            if(window.innerWidth < 768) toggleMobileSidebar();
+        }
+
+        function updateTotalCount() {
+            const now = new Date();
+            let unreadPublicCount = 0;
+
+            cards.forEach(c => {
+                const cardDate = new Date(c.date);
+                const diffHours = (now - cardDate) / (1000 * 60 * 60);
+                if(diffHours <= 24 && !readPublicCardIds.includes(c.id)) {
+                    unreadPublicCount++;
+                }
+            });
+
+            document.getElementById('totalMemoCount').innerText = `${unreadPublicCount}개`;
+
+            const pubNavBadge = document.getElementById('pubNewBadgeNav');
+            if(unreadPublicCount > 0) {
+                pubNavBadge.innerText = `NEW ${unreadPublicCount}`;
+                pubNavBadge.classList.remove('hidden');
+            } else {
+                pubNavBadge.classList.add('hidden');
+            }
+        }
+
+        window.showCustomAlert = function(title, message, onConfirm = null) {
+            const dialog = document.getElementById('customDialog');
+            document.getElementById('dialogTitle').innerText = title;
+            document.getElementById('dialogMessage').innerText = message;
+            
+            const confirmBtn = document.getElementById('dialogConfirm');
+            const cancelBtn = document.getElementById('dialogCancel');
+            
+            dialog.classList.remove('hidden');
+            const newConfirm = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+            
+            if (onConfirm) {
+                cancelBtn.classList.remove('hidden');
+                newConfirm.innerText = '확인';
+                newConfirm.onclick = () => { dialog.classList.add('hidden'); onConfirm(); };
+                cancelBtn.onclick = () => { dialog.classList.add('hidden'); };
+            } else {
+                cancelBtn.classList.add('hidden');
+                newConfirm.innerText = '확인';
+                newConfirm.onclick = () => { dialog.classList.add('hidden'); };
+            }
+        }
+
+        window.openWriteModal = function(isEdit = false) {
+            if(!isOperator) {
+                showCustomAlert('운영자 권한 필요', '명플턴 뷰에 새 메모를 작성하려면 하단 좌측의 [로그인] 버튼을 눌러 운영자 PIN으로 로그인해주세요.');
                 return;
             }
 
-            const id = Date.now();
-            const cardData = { id, date, folder, tag, title, image, memo, comments: [] };
-
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cards', String(id)), cardData);
-                closeWriteModal();
+            if(!isEdit) {
+                document.getElementById('writeModalHeading').innerText = '새 주식 인사이츠 기록';
+                document.getElementById('editCardId').value = '';
+                document.getElementById('writeDate').valueAsDate = new Date();
                 document.getElementById('writeTitle').value = '';
+                document.getElementById('writeTicker').value = '';
+                document.getElementById('writeBuyPrice').value = '';
+                document.getElementById('writeSellPrice').value = '';
+                document.getElementById('returnRateDisplay').innerHTML = '<span class="text-gray-400">매수가와 매도가 입력 시 자동 계산</span>';
                 document.getElementById('writeMemo').value = '';
-                document.getElementById('writeImageBase64').value = '';
-                if(document.getElementById('writeImageFile')) document.getElementById('writeImageFile').value = '';
-            } catch (err) {
-                showCustomAlert('저장 중 오류가 발생했습니다.');
+                document.getElementById('writeImage').value = '';
             }
+            document.getElementById('writeModal').classList.remove('hidden');
         }
 
-        window.openDetailView = function(id) {
+        window.closeWriteModal = function() {
+            document.getElementById('writeModal').classList.add('hidden');
+        }
+
+        window.openDetailModal = function(id) {
             currentViewingId = id;
             const card = cards.find(c => c.id === id);
-            if (!card) return;
+            if(!card) return;
+
+            if(!readPublicCardIds.includes(card.id)) {
+                readPublicCardIds.push(card.id);
+                localStorage.setItem('mp_read_public_ids', JSON.stringify(readPublicCardIds));
+                updateTotalCount();
+                renderCards();
+            }
 
             document.getElementById('detailTitle').innerText = card.title;
             document.getElementById('detailDateTag').innerText = card.date;
-            document.getElementById('detailFolderBadge').innerText = card.folder;
-            
+            document.getElementById('detailTagBadge').innerText = card.tag;
+
+            const typeBadge = document.getElementById('detailTypeBadge');
+            typeBadge.innerText = '💌 명플턴 뷰 (전체 공개)';
+            typeBadge.className = 'bg-[#FDF3F2] text-[#D94F3D] text-[10px] px-2.5 py-1 rounded-md font-bold mb-1.5 inline-block';
+
+            const tickerBadge = document.getElementById('detailTickerBadge');
+            if(card.ticker && card.ticker.trim() !== '') {
+                tickerBadge.innerText = `티커: ${card.ticker}`;
+                tickerBadge.classList.remove('hidden');
+            } else {
+                tickerBadge.classList.add('hidden');
+            }
+
+            const priceReturnBox = document.getElementById('detailPriceReturnBox');
+            if(card.buyPrice && card.buyPrice.toString().trim() !== '') {
+                const buy = parseFloat(card.buyPrice);
+                document.getElementById('detailBuyPrice').innerText = Number(buy).toLocaleString();
+                
+                const sellEl = document.getElementById('detailSellPrice');
+                const rateEl = document.getElementById('detailReturnRate');
+                
+                if(card.sellPrice && card.sellPrice.toString().trim() !== '') {
+                    const sell = parseFloat(card.sellPrice);
+                    sellEl.innerText = Number(sell).toLocaleString();
+                    const rate = ((sell - buy) / buy) * 100;
+                    if(rate > 0) {
+                        rateEl.innerHTML = `<span class="text-red-500 font-bold">+${rate.toFixed(2)}%</span>`;
+                    } else if(rate < 0) {
+                        rateEl.innerHTML = `<span class="text-blue-500 font-bold">${rate.toFixed(2)}%</span>`;
+                    } else {
+                        rateEl.innerHTML = `<span class="text-gray-700 font-bold">0.00%</span>`;
+                    }
+                } else {
+                    sellEl.innerText = '미입력';
+                    rateEl.innerHTML = `<span class="text-gray-400 font-medium">보유 중</span>`;
+                }
+                priceReturnBox.classList.remove('hidden');
+            } else {
+                priceReturnBox.classList.add('hidden');
+            }
+
             const imgEl = document.getElementById('detailImg');
-            if (card.image) {
+            const hintEl = document.getElementById('imageZoomHint');
+            if(card.image) {
                 imgEl.src = card.image;
                 imgEl.classList.remove('hidden');
+                hintEl.classList.remove('hidden');
             } else {
                 imgEl.classList.add('hidden');
+                hintEl.classList.add('hidden');
             }
 
             document.getElementById('detailMemo').innerText = card.memo;
 
-            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
-            const opActions = document.getElementById('operatorCardActions');
-            if (isOperator) {
-                opActions.classList.remove('hidden');
-            } else {
-                opActions.classList.add('hidden');
-            }
+            const canModify = isOperator;
+            document.getElementById('ownerActionButtons').style.display = canModify ? 'flex' : 'none';
+            document.getElementById('ownerDeleteButton').style.display = canModify ? 'block' : 'none';
 
-            if (myNickname && document.getElementById('commentAuthor')) {
-                document.getElementById('commentAuthor').value = myNickname;
-            }
-
-            renderComments(card);
-
-            document.getElementById('mainView').classList.add('hidden');
-            document.getElementById('detailView').classList.remove('hidden');
-            window.scrollTo(0, 0);
+            document.getElementById('detailModal').classList.remove('hidden');
         }
 
-        window.goHome = function() {
+        window.closeDetailModal = function() {
+            document.getElementById('detailModal').classList.add('hidden');
             currentViewingId = null;
-            document.getElementById('detailView').classList.add('hidden');
-            document.getElementById('mainView').classList.remove('hidden');
+        }
+
+        window.openLightboxFromDetail = function() {
+            const card = cards.find(c => c.id === currentViewingId);
+            if(card && card.image) {
+                document.getElementById('lightboxImg').src = card.image;
+                document.getElementById('imageLightboxModal').classList.remove('hidden');
+            }
+        }
+
+        window.closeLightbox = function() {
+            document.getElementById('imageLightboxModal').classList.add('hidden');
+        }
+
+        window.saveCard = function() {
+            if(!isOperator) {
+                showCustomAlert('권한 제한', '운영자만 발행할 수 있습니다.');
+                return;
+            }
+
+            const editId = document.getElementById('editCardId').value;
+            const date = document.getElementById('writeDate').value;
+            const type = 'public';
+            const tag = document.getElementById('writeTag').value;
+            const ticker = document.getElementById('writeTicker').value.trim().toUpperCase();
+            const buyPrice = document.getElementById('writeBuyPrice').value;
+            const sellPrice = document.getElementById('writeSellPrice').value;
+            const title = document.getElementById('writeTitle').value.trim();
+            const memo = document.getElementById('writeMemo').value.trim();
+            const imageInput = document.getElementById('writeImage');
+
+            if(!date || !title || !memo) {
+                showCustomAlert('입력 오류', '날짜, 제목, 메모 내용을 모두 입력해주세요.');
+                return;
+            }
+
+            if(imageInput.files && imageInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    processCardSave(editId, date, type, tag, ticker, buyPrice, sellPrice, title, memo, e.target.result);
+                };
+                reader.readAsDataURL(imageInput.files[0]);
+            } else {
+                let existingImage = null;
+                if(editId) {
+                    const existingCard = cards.find(c => c.id == editId);
+                    if(existingCard) existingImage = existingCard.image;
+                }
+                processCardSave(editId, date, type, tag, ticker, buyPrice, sellPrice, title, memo, existingImage);
+            }
+        }
+
+        async function processCardSave(editId, date, type, tag, ticker, buyPrice, sellPrice, title, memo, image) {
+            const cardData = {
+                date,
+                type,
+                tag,
+                ticker,
+                buyPrice: buyPrice || '',
+                sellPrice: sellPrice || '',
+                title,
+                memo,
+                image: image || ''
+            };
+
+            if(isFirebaseConnected && db) {
+                try {
+                    if(editId && !editId.toString().startsWith('default-') && !editId.toString().startsWith('local-')) {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'insights', editId), cardData);
+                    } else {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'insights'), cardData);
+                    }
+                } catch(e) {
+                    console.warn("Firestore write restricted, saving locally:", e.message);
+                }
+            }
+
+            if(editId) {
+                localCards = localCards.map(c => c.id == editId ? { ...c, ...cardData } : c);
+                remotePublicCards = remotePublicCards.map(c => c.id == editId ? { ...c, ...cardData } : c);
+            } else {
+                const newCard = { id: 'local-' + Date.now(), ...cardData };
+                localCards.unshift(newCard);
+                remotePublicCards.unshift(newCard);
+            }
+            localStorage.setItem('mp_cards_v9', JSON.stringify(localCards));
+
+            closeWriteModal();
+            mergeCards();
+        }
+
+        window.editCurrentCard = function() {
+            if(!isOperator) {
+                showCustomAlert('수정 제한', '운영자 권한이 필요합니다.');
+                return;
+            }
+
+            const card = cards.find(c => c.id === currentViewingId);
+            if(!card) return;
+
+            closeDetailModal();
+            document.getElementById('writeModalHeading').innerText = '주식 인사이츠 수정';
+            document.getElementById('editCardId').value = card.id;
+            document.getElementById('writeDate').value = card.date;
+            document.getElementById('writeTag').value = card.tag || '기타';
+            document.getElementById('writeTicker').value = card.ticker || '';
+            document.getElementById('writeBuyPrice').value = card.buyPrice || '';
+            document.getElementById('writeSellPrice').value = card.sellPrice || '';
+            calcReturnRate();
+            document.getElementById('writeTitle').value = card.title;
+            document.getElementById('writeMemo').value = card.memo;
+            document.getElementById('writeImage').value = '';
+
+            openWriteModal(true);
         }
 
         window.deleteCurrentCard = async function() {
-            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
-            if (!isOperator) return;
-            showCustomConfirm('이 메모를 영구적으로 삭제하시겠습니까?', async () => {
-                const card = cards.find(c => c.id === currentViewingId);
-                if (card) {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cards', String(card.id)));
-                    goHome();
+            if(!isOperator) {
+                showCustomAlert('삭제 제한', '운영자 권한이 필요합니다.');
+                return;
+            }
+
+            const card = cards.find(c => c.id === currentViewingId);
+            if(!card) return;
+
+            showCustomAlert('메모 삭제', '이 인사이츠 편지를 정말 삭제하시겠습니까?', async () => {
+                if(isFirebaseConnected && db && !card.id.toString().startsWith('default-') && !card.id.toString().startsWith('local-')) {
+                    try {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'insights', card.id));
+                    } catch(e) {
+                        console.warn("Firestore delete restricted:", e.message);
+                    }
                 }
+                localCards = localCards.filter(c => c.id !== currentViewingId);
+                remotePublicCards = remotePublicCards.filter(c => c.id !== currentViewingId);
+                localStorage.setItem('mp_cards_v9', JSON.stringify(localCards));
+
+                closeDetailModal();
+                mergeCards();
             });
         }
 
-        window.deleteCardFromGrid = function(event, id) {
+        window.deleteCard = async function(event, id) {
             event.stopPropagation();
-            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
-            if (!isOperator) return;
-            showCustomConfirm('이 메모를 삭제하시겠습니까?', async () => {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cards', String(id)));
-            });
-        }
-
-        window.addComment = async function() {
-            const author = document.getElementById('commentAuthor').value.trim();
-            const text = document.getElementById('commentText').value.trim();
-
-            if (!author || !text) {
-                showCustomAlert('필명과 댓글 내용을 모두 입력해주세요.');
+            if(!isOperator) {
+                showCustomAlert('삭제 제한', '운영자 권한이 필요합니다.');
                 return;
             }
 
-            const card = cards.find(c => c.id === currentViewingId);
-            if (!card) return;
+            const card = cards.find(c => c.id === id);
+            if(!card) return;
 
-            const newComment = {
-                id: Date.now(),
-                author,
-                text,
-                date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-            };
-
-            const updatedComments = card.comments ? [...card.comments, newComment] : [newComment];
-
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cards', String(card.id)), {
-                    ...card,
-                    comments: updatedComments
-                });
-                document.getElementById('commentText').value = '';
-            } catch (err) {
-                showCustomAlert('댓글 등록 중 오류가 발생했습니다.');
-            }
-        }
-
-        window.deleteComment = async function(commentId) {
-            const card = cards.find(c => c.id === currentViewingId);
-            if (!card) return;
-
-            showCustomConfirm('이 댓글을 삭제하시겠습니까?', async () => {
-                const updatedComments = (card.comments || []).filter(c => c.id !== commentId);
-                try {
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cards', String(card.id)), {
-                        ...card,
-                        comments: updatedComments
-                    });
-                } catch (err) {
-                    showCustomAlert('댓글 삭제 중 오류가 발생했습니다.');
+            showCustomAlert('메모 삭제', '이 인사이츠 편지를 삭제하시겠습니까?', async () => {
+                if(isFirebaseConnected && db && !card.id.toString().startsWith('default-') && !card.id.toString().startsWith('local-')) {
+                    try {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'insights', id));
+                    } catch(e) {
+                        console.warn("Firestore delete restricted:", e.message);
+                    }
                 }
-            });
-        }
+                localCards = localCards.filter(c => c.id !== id);
+                remotePublicCards = remotePublicCards.filter(c => c.id !== id);
+                localStorage.setItem('mp_cards_v9', JSON.stringify(localCards));
 
-        function renderComments(card) {
-            const listEl = document.getElementById('commentList');
-            const countBadge = document.getElementById('commentCountBadge');
-            const comments = card.comments || [];
-
-            countBadge.innerText = comments.length;
-
-            if (comments.length === 0) {
-                listEl.innerHTML = `<div class="text-xs text-toss-textSub text-center py-6 bg-white rounded-2xl border border-toss-border">등록된 의견이 없습니다. 첫 번째 투자 의견을 남겨보세요!</div>`;
-                return;
-            }
-
-            listEl.innerHTML = '';
-            comments.forEach(c => {
-                listEl.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl border border-toss-border flex justify-between items-start gap-4 shadow-2xs">
-                        <div class="flex flex-col gap-1.5 flex-1">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-toss-textMain">${escapeHtml(c.author)}</span>
-                                <span class="text-[10px] text-toss-textSub">${c.date}</span>
-                            </div>
-                            <p class="text-xs text-toss-textMain leading-relaxed">${escapeHtml(c.text)}</p>
-                        </div>
-                        <button onclick="deleteComment(${c.id})" class="text-xs text-toss-textSub hover:text-red-500 font-medium px-2 py-1 rounded transition">삭제</button>
-                    </div>
-                `;
-            });
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
-        }
-
-        window.selectFolder = function(folderName) {
-            currentFolder = folderName;
-            document.getElementById('currentFolderTitle').innerText = folderName === 'all' ? '전체 보기' : folderName;
-            renderFolders();
-            renderCards();
-        }
-
-        function renderFolders() {
-            const folderList = document.getElementById('folderList');
-            const select = document.getElementById('writeFolderSelect');
-            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
-            
-            const isAllActive = currentFolder === 'all';
-            folderList.innerHTML = `
-                <li class="flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold transition ${isAllActive ? 'text-toss-red bg-toss-lightRed' : 'text-toss-textMain hover:bg-toss-bg'}" onclick="selectFolder('all')">
-                    <span>📝 전체 보기</span>
-                </li>
-            `;
-            if (select) select.innerHTML = '';
-
-            folders.forEach(folder => {
-                const isActive = currentFolder === folder;
-                folderList.innerHTML += `
-                    <li class="flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer text-sm font-semibold transition group ${isActive ? 'text-toss-red bg-toss-lightRed' : 'text-toss-textMain hover:bg-toss-bg'}" onclick="selectFolder('${folder}')">
-                        <span>📌 ${folder}</span>
-                        ${isOperator ? `
-                            <div class="flex items-center gap-1 hidden group-hover:flex">
-                                <button onclick="event.stopPropagation(); openEditFolderModal('${folder}')" class="text-xs text-toss-textSub hover:text-toss-red font-bold px-1">✎</button>
-                                <button onclick="event.stopPropagation(); deleteFolder('${folder}')" class="text-xs text-toss-textSub hover:text-red-500 font-bold px-1">×</button>
-                            </div>
-                        ` : ''}
-                    </li>
-                `;
-                if (select) select.innerHTML += `<option value="${folder}">${folder}</option>`;
+                mergeCards();
             });
         }
 
         window.renderCards = function() {
-            const container = document.getElementById('contentContainer');
+            const grid = document.getElementById('cardGrid');
             const keyword = document.getElementById('searchInput').value.toLowerCase();
-            const isOperator = currentUser && currentUser.email === OPERATOR_EMAIL;
+            const tagFilter = document.getElementById('tagFilter').value;
+            const now = new Date();
 
             let filtered = cards.filter(card => {
-                const matchFolder = (currentFolder === 'all' || card.folder === currentFolder);
-                const matchKeyword = card.title.toLowerCase().includes(keyword) || card.memo.toLowerCase().includes(keyword) || card.date.includes(keyword);
-                return matchFolder && matchKeyword;
+                const matchTag = (tagFilter === 'all' || card.tag === tagFilter);
+                const matchKeyword = card.title.toLowerCase().includes(keyword) || 
+                                     card.memo.toLowerCase().includes(keyword) || 
+                                     card.date.includes(keyword) || 
+                                     (card.ticker && card.ticker.toLowerCase().includes(keyword));
+                return matchTag && matchKeyword;
             });
 
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="py-20 text-center flex flex-col items-center justify-center gap-3 bg-white rounded-3xl border border-toss-border shadow-xs">
-                        <span class="text-3xl">🔍</span>
-                        <p class="text-sm font-semibold text-toss-textSub">등록된 주식 인사이츠 메모가 없습니다.</p>
+            if(filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center flex flex-col items-center justify-center gap-3 bg-[#FFFEFC] rounded-3xl border border-[#E8E6DF] p-8 shadow-sm">
+                        <div class="w-14 h-14 rounded-2xl bg-[#FDF3F2] text-[#D94F3D] flex items-center justify-center text-xl font-bold border border-[#F4D1CD]">💌</div>
+                        <h3 class="text-base font-bold text-gray-800">도착한 인사이츠 편지가 없습니다</h3>
+                        <p class="text-xs text-gray-500 max-w-sm leading-relaxed">상단 우측의 '+ 새 메모 작성' 버튼을 눌러 인사이츠를 기록해보세요.</p>
                     </div>
                 `;
                 return;
             }
 
-            const grouped = {};
+            grid.innerHTML = '';
             filtered.forEach(card => {
-                const cleanDate = card.date.replace(/\./g, '-');
-                const ym = cleanDate.length >= 7 ? cleanDate.substring(0, 7) : '기타';
-                if (!grouped[ym]) grouped[ym] = [];
-                grouped[ym].push(card);
-            });
+                let thumbHtml = card.image ? 
+                    `<img src="${card.image}" class="w-full h-40 object-cover bg-gray-100" alt="썸네일" onerror="this.src='https://placehold.co/400x160/FAF8F5/6B7684?text=Investment+Letter'">` : 
+                    `<div class="w-full h-24 bg-gradient-to-r from-[#FAF8F5] to-[#F4F2EC] flex items-center justify-center text-gray-400 font-bold text-xs tracking-wider border-b border-[#E8E6DF]">✉️ INVESTMENT LETTER</div>`;
+                
+                let tickerHtml = card.ticker ? `<span class="bg-gray-100 text-gray-700 font-bold px-2 py-0.5 rounded text-[10px]">${card.ticker}</span>` : '';
+                let typeBadge = `<span class="bg-[#FDF3F2] text-[#D94F3D] font-bold px-2 py-0.5 rounded text-[10px] border border-[#F4D1CD]">💌 명플턴 뷰</span>`;
 
-            const sortedMonths = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+                let newBadgeHtml = '';
+                const cardDate = new Date(card.date);
+                const diffHours = (now - cardDate) / (1000 * 60 * 60);
+                if(diffHours <= 24 && !readPublicCardIds.includes(card.id)) {
+                    newBadgeHtml = `<span class="bg-[#D94F3D] text-white font-bold px-2 py-0.5 rounded text-[10px] new-badge-pulse shadow-sm">NEW</span>`;
+                }
 
-            container.innerHTML = '';
-            sortedMonths.forEach(ym => {
-                const [year, month] = ym.split('-');
-                const monthTitle = year && month ? `${year}년 ${parseInt(month, 10)}월` : ym;
+                let returnBadgeHtml = '';
+                if(card.buyPrice && card.sellPrice) {
+                    const r = ((parseFloat(card.sellPrice) - parseFloat(card.buyPrice)) / parseFloat(card.buyPrice)) * 100;
+                    if(r > 0) {
+                        returnBadgeHtml = `<span class="bg-red-50 text-red-600 border border-red-200 font-bold px-2 py-0.5 rounded text-[10px]">수익률 +${r.toFixed(1)}%</span>`;
+                    } else if(r < 0) {
+                        returnBadgeHtml = `<span class="bg-blue-50 text-blue-600 border border-blue-200 font-bold px-2 py-0.5 rounded text-[10px]">수익률 ${r.toFixed(1)}%</span>`;
+                    }
+                }
 
-                let monthHtml = `
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-4">
-                            <span class="text-sm font-bold text-toss-red bg-toss-lightRed px-3 py-1 rounded-full">${monthTitle}</span>
-                            <div class="flex-1 border-t border-toss-border"></div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                `;
+                let deleteBtnHtml = isOperator ? `<button onclick="deleteCard(event, '${card.id}')" class="text-gray-400 hover:text-[#D94F3D] p-1 rounded transition font-medium">삭제</button>` : ``;
 
-                grouped[ym].forEach(card => {
-                    let thumbHtml = card.image ? `<img src="${card.image}" class="w-full h-44 object-cover" alt="썸네일">` : '';
-                    const commentCount = card.comments ? card.comments.length : 0;
-                    monthHtml += `
-                        <div onclick="openDetailView(${card.id})" class="bg-white rounded-2xl border border-toss-border overflow-hidden cursor-pointer hover:shadow-lg transition flex flex-col justify-between group">
-                            <div>
-                                ${thumbHtml}
-                                <div class="p-5 flex flex-col gap-3">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-xs text-toss-textSub font-medium">${card.date}</span>
-                                        <span class="text-xs bg-red-50 text-toss-red font-bold px-2 py-0.5 rounded-md">${card.tag}</span>
-                                    </div>
-                                    <h3 class="font-bold text-toss-textMain text-base leading-snug line-clamp-2 group-hover:text-toss-red transition">${card.title}</h3>
+                grid.innerHTML += `
+                    <div onclick="openDetailModal('${card.id}')" class="bg-[#FFFEFC] rounded-2xl border border-[#E8E6DF] overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex flex-col group">
+                        ${thumbHtml}
+                        <div class="p-4 flex flex-col gap-2.5 flex-1">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-400 font-semibold">${card.date}</span>
+                                <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                                    ${newBadgeHtml}
+                                    ${tickerHtml}
+                                    ${returnBadgeHtml}
+                                    <span class="text-[11px] px-2 py-0.5 rounded font-bold bg-[#FDF3F2] text-[#D94F3D]">${card.tag}</span>
                                 </div>
                             </div>
-                            <div class="px-5 py-3.5 border-t border-toss-border flex justify-between items-center bg-gray-50/50">
-                                <span class="text-xs font-semibold text-toss-textSub">📌 ${card.folder} | 💬 ${commentCount}</span>
-                                ${isOperator ? `<button onclick="deleteCardFromGrid(event, ${card.id})" class="text-xs text-red-500 hover:bg-red-50 px-2 py-1 rounded font-bold transition">삭제</button>` : ''}
-                            </div>
+                            <h3 class="text-sm font-bold text-gray-900 line-clamp-2 leading-snug group-hover:text-[#D94F3D] transition">${card.title}</h3>
+                            <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">${card.memo}</p>
                         </div>
-                    `;
-                });
-
-                monthHtml += `</div></div>`;
-                container.innerHTML += monthHtml;
+                        <div class="px-4 py-3 bg-[#FAF8F5]/50 border-t border-[#E8E6DF] flex justify-between items-center text-xs">
+                            ${typeBadge}
+                            ${deleteBtnHtml}
+                        </div>
+                    </div>
+                `;
             });
         }
-
-        function showCustomAlert(msg) {
-            const modal = document.getElementById('customDialogModal');
-            document.getElementById('customDialogMsg').innerText = msg;
-            document.getElementById('customDialogActions').innerHTML = `<button onclick="closeCustomDialog()" class="w-full bg-toss-red text-white font-bold py-2.5 rounded-xl text-sm shadow-sm">확인</button>`;
-            modal.style.display = 'flex';
-        }
-
-        function showCustomConfirm(msg, onConfirm) {
-            const modal = document.getElementById('customDialogModal');
-            document.getElementById('customDialogMsg').innerText = msg;
-            window._tempConfirm = onConfirm;
-            document.getElementById('customDialogActions').innerHTML = `
-                <button onclick="closeCustomDialog()" class="flex-1 bg-gray-100 text-toss-textMain font-bold py-2.5 rounded-xl text-sm">취소</button>
-                <button onclick="closeCustomDialog(); if(window._tempConfirm) window._tempConfirm();" class="flex-1 bg-toss-red text-white font-bold py-2.5 rounded-xl text-sm shadow-sm">확인</button>
-            `;
-            modal.style.display = 'flex';
-        }
-
-        window.closeCustomDialog = function() {
-            document.getElementById('customDialogModal').style.display = 'none';
-        }
-
-        window.closeFolderModal = closeFolderModal;
-        window.closeLoginModal = closeLoginModal;
-        window.closeEditFolderModal = closeEditFolderModal;
     </script>
 </body>
 </html>
