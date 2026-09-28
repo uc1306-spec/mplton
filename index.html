@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>명플턴의 인사이츠 아카이브</title>
+    <title>명플턴의 관점</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -47,9 +47,9 @@
             <div class="flex items-center justify-between mb-6 px-2">
                 <div class="flex items-center gap-2.5 font-bold text-xl tracking-tight text-[#2C2C2A]">
                     <div class="w-9 h-9 rounded-xl bg-[#FDF3F2] flex items-center justify-center text-[#D94F3D] shadow-inner border border-[#F4D1CD]">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                     </div>
-                    <span>명플턴의 <span class="text-[#D94F3D]">레터함</span></span>
+                    <span>명플턴의 <span class="text-[#D94F3D]">관점</span></span>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-gray-400 hover:text-gray-700 p-1">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -58,13 +58,13 @@
 
             <div class="flex-1 overflow-y-auto pr-1">
                 <div class="flex items-center justify-between px-2 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                    <span>아카이브 편지함</span>
+                    <span>인사이트 아카이브</span>
                 </div>
                 <ul class="space-y-1.5">
                     <li onclick="selectTab('public')" id="tabPublic" class="flex items-center justify-between px-3.5 py-3 rounded-xl cursor-pointer text-sm font-semibold transition bg-[#FDF3F2] text-[#D94F3D] border border-[#F4D1CD]">
                         <span class="flex items-center gap-2.5">
-                            <svg class="w-4 h-4 text-[#D94F3D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            명플턴 뷰
+                            <svg class="w-4 h-4 text-[#D94F3D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                            View
                         </span>
                         <span id="pubNewBadgeNav" class="hidden text-[10px] bg-[#D94F3D] text-white font-bold px-1.5 py-0.5 rounded-full new-badge-pulse">NEW</span>
                     </li>
@@ -88,16 +88,11 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </button>
                 <div>
-                    <h1 id="currentTabTitle" class="text-xl font-bold tracking-tight text-[#2C2C2A]">명플턴 뷰</h1>
-                    <p id="currentTabSub" class="text-xs text-gray-500 font-medium">운영자가 공식 발행한 투자 인사이츠와 편지함입니다.</p>
+                    <h1 id="currentTabTitle" class="text-xl font-bold tracking-tight text-[#2C2C2A]">View</h1>
                 </div>
             </div>
 
             <div class="flex items-center gap-3 flex-wrap md:flex-nowrap">
-                <button onclick="forceRefreshCloud()" class="bg-[#FAF8F5] hover:bg-[#F0EEE6] text-gray-700 border border-[#E8E6DF] px-3.5 py-2.5 rounded-xl font-semibold text-xs transition flex items-center gap-1.5 whitespace-nowrap" title="클라우드 최신 게시물 새로고침">
-                    🔄 클라우드 동기화 새로고침
-                </button>
-
                 <select id="tagFilter" onchange="renderCards()" class="bg-[#FAF8F5] border border-[#E8E6DF] text-gray-700 text-sm rounded-xl px-3.5 py-2.5 outline-none focus:border-[#D94F3D] transition font-medium">
                     <option value="all">🏷️ 전체 태그</option>
                     <option value="매수 관점">📈 매수 관점</option>
@@ -138,8 +133,8 @@
         <div class="bg-[#FFFEFC] border border-[#E8E6DF] rounded-3xl max-w-xl w-full p-7 shadow-2xl transform transition-all flex flex-col gap-5 my-8">
             <div class="flex justify-between items-center border-b border-[#E8E6DF] pb-4">
                 <div>
-                    <h2 id="writeModalHeading" class="text-lg font-bold text-gray-900">새 주식 인사이츠 기록</h2>
-                    <p class="text-xs text-gray-500 font-medium">명플턴 뷰 인사이츠 편지글을 기록하세요 (운영자 전용).</p>
+                    <h2 id="writeModalHeading" class="text-lg font-bold text-gray-900">새 관점 기록</h2>
+                    <p class="text-xs text-gray-500 font-medium">투자 인사이츠와 관점을 기록하세요 (운영자 전용).</p>
                 </div>
                 <button onclick="closeWriteModal()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition">✕</button>
             </div>
@@ -152,8 +147,8 @@
                     <input type="date" id="writeDate" class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition font-medium">
                 </div>
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-xs font-bold text-gray-500">게시 편지함</label>
-                    <input type="text" readonly value="💌 명플턴 뷰 (전체 공개 발행)" class="p-3 bg-gray-100 border border-[#E8E6DF] rounded-xl text-sm text-gray-600 font-medium cursor-not-allowed">
+                    <label class="text-xs font-bold text-gray-500">게시 아카이브</label>
+                    <input type="text" readonly value="👁️ View (전체 공개)" class="p-3 bg-gray-100 border border-[#E8E6DF] rounded-xl text-sm text-gray-600 font-medium cursor-not-allowed">
                     <input type="hidden" id="writeType" value="public">
                 </div>
             </div>
@@ -194,8 +189,8 @@
             </div>
 
             <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-bold text-gray-500">메모 제목 / 종목명</label>
-                <input type="text" id="writeTitle" placeholder="예: 엔비디아 2분기 실적 리뷰 및 가이던스 분석" class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition font-medium">
+                <label class="text-xs font-bold text-gray-500">제목 / 종목명</label>
+                <input type="text" id="writeTitle" placeholder="예: 엔비디아 2분기 실적 리뷰 및 관점 정립" class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition font-medium">
             </div>
 
             <div class="flex flex-col gap-1.5">
@@ -204,11 +199,11 @@
             </div>
 
             <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-bold text-gray-500">상세 편지 내용</label>
+                <label class="text-xs font-bold text-gray-500">상세 내용</label>
                 <textarea id="writeMemo" rows="5" placeholder="투자 핵심 지표, 밸류에이션, 목표가, 체크포인트 등을 자유롭게 기록하세요..." class="p-3 bg-[#FAF8F5] border border-[#E8E6DF] rounded-xl text-sm outline-none focus:border-[#D94F3D] focus:bg-white transition font-medium resize-y"></textarea>
             </div>
 
-            <button onclick="saveCard()" class="w-full py-3.5 bg-[#D94F3D] hover:bg-[#C23F2D] text-white rounded-2xl font-bold text-sm shadow-lg shadow-red-500/10 transition">인사이츠 저장하기</button>
+            <button onclick="saveCard()" class="w-full py-3.5 bg-[#D94F3D] hover:bg-[#C23F2D] text-white rounded-2xl font-bold text-sm shadow-lg shadow-red-500/10 transition">관점 저장하기</button>
         </div>
     </div>
 
@@ -217,7 +212,7 @@
         <div class="bg-[#FFFEFC] border border-[#E8E6DF] rounded-3xl max-w-2xl w-full p-7 shadow-2xl transform transition-all flex flex-col gap-5 my-8 max-h-[90vh]">
             <div class="flex justify-between items-center border-b border-[#E8E6DF] pb-4">
                 <div>
-                    <span id="detailTypeBadge" class="bg-[#FDF3F2] text-[#D94F3D] text-[10px] px-2.5 py-1 rounded-md font-bold mb-1.5 inline-block">명플턴 뷰</span>
+                    <span id="detailTypeBadge" class="bg-[#FDF3F2] text-[#D94F3D] text-[10px] px-2.5 py-1 rounded-md font-bold mb-1.5 inline-block">명플턴의 관점</span>
                     <span id="detailTickerBadge" class="hidden bg-gray-100 text-gray-800 text-[10px] px-2.5 py-1 rounded-md font-bold mb-1.5 inline-block"></span>
                     <h2 id="detailTitle" class="text-xl font-bold text-gray-900 leading-snug break-words"></h2>
                 </div>
@@ -291,7 +286,6 @@
 
         let readPublicCardIds = JSON.parse(localStorage.getItem('mp_read_public_ids_v20')) || [];
 
-        // XSS 방지 유틸리티 함수
         function escapeHtml(str) {
             if (!str) return '';
             return String(str)
@@ -302,7 +296,6 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // 이미지 압축 유틸리티 (LocalStorage 용량 초과 방지)
         function compressImage(file, maxWidth = 1024, quality = 0.75) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -398,14 +391,6 @@
                 fetchCloudOnce();
             });
         }
-
-        window.forceRefreshCloud = function() {
-            if(!db) {
-                showCustomAlert('동기화 알림', '오프라인(로컬) 모드 상태입니다.');
-                return;
-            }
-            fetchCloudOnce(true);
-        };
 
         function fetchCloudOnce(showAlert = false) {
             if(!db) return;
@@ -644,7 +629,7 @@
             }
 
             if(!isEdit) {
-                document.getElementById('writeModalHeading').innerText = '새 주식 인사이츠 기록';
+                document.getElementById('writeModalHeading').innerText = '새 관점 기록';
                 document.getElementById('editCardId').value = '';
                 document.getElementById('writeDate').valueAsDate = new Date();
                 document.getElementById('writeTitle').value = '';
@@ -678,7 +663,7 @@
             document.getElementById('detailTagBadge').innerText = card.tag;
 
             const typeBadge = document.getElementById('detailTypeBadge');
-            typeBadge.innerText = '💌 명플턴 뷰 (전체 공개)';
+            typeBadge.innerText = '👁️ View';
 
             const tickerBadge = document.getElementById('detailTickerBadge');
             if(card.ticker && card.ticker.trim() !== '') {
@@ -801,7 +786,7 @@
             const imageInput = document.getElementById('writeImage');
 
             if(!date || !title || !memo) {
-                showCustomAlert('입력 오류', '날짜, 제목, 메모 내용을 모두 입력해주세요.');
+                showCustomAlert('입력 오류', '날짜, 제목, 상세 내용을 모두 입력해주세요.');
                 return;
             }
 
@@ -860,7 +845,7 @@
             closeWriteModal();
             fetchCloudOnce();
             mergeCards();
-            showCustomAlert('저장 완료', '인사이츠 편지가 성공적으로 저장되었습니다.');
+            showCustomAlert('저장 완료', '관점 기록이 성공적으로 저장되었습니다.');
         }
 
         window.editCurrentCard = function() {
@@ -868,7 +853,7 @@
             if(!card) return;
 
             closeDetailModal();
-            document.getElementById('writeModalHeading').innerText = '주식 인사이츠 수정';
+            document.getElementById('writeModalHeading').innerText = '관점 기록 수정';
             document.getElementById('editCardId').value = card.id;
             document.getElementById('writeDate').value = card.date;
             document.getElementById('writeTag').value = card.tag || '기타';
@@ -887,7 +872,7 @@
             const card = cards.find(c => c.id == currentViewingId);
             if(!card) return;
 
-            showCustomAlert('메모 삭제', '이 인사이츠 편지를 정말 삭제하시겠습니까?', async () => {
+            showCustomAlert('메모 삭제', '이 관점 기록을 정말 삭제하시겠습니까?', async () => {
                 if(db) {
                     try {
                         await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'insights', card.id.toString()));
@@ -910,7 +895,7 @@
             const card = cards.find(c => c.id == id);
             if(!card) return;
 
-            showCustomAlert('메모 삭제', '이 인사이츠 편지를 삭제하시겠습니까?', async () => {
+            showCustomAlert('메모 삭제', '이 관점 기록을 삭제하시겠습니까?', async () => {
                 if(db) {
                     try {
                         await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'insights', id.toString()));
@@ -969,9 +954,9 @@
             if(filtered.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-full py-16 text-center flex flex-col items-center justify-center gap-3 bg-[#FFFEFC] rounded-3xl border border-[#E8E6DF] p-8 shadow-sm">
-                        <div class="w-14 h-14 rounded-2xl bg-[#FDF3F2] text-[#D94F3D] flex items-center justify-center text-xl font-bold border border-[#F4D1CD]">💌</div>
-                        <h3 class="text-base font-bold text-gray-800">도착한 인사이츠 편지가 없습니다</h3>
-                        <p class="text-xs text-gray-500 max-w-sm leading-relaxed">상단 좌측의 운영자 로그인 후 '+ 새 메모 작성' 버튼을 눌러 인사이츠를 기록해보세요.</p>
+                        <div class="w-14 h-14 rounded-2xl bg-[#FDF3F2] text-[#D94F3D] flex items-center justify-center text-xl font-bold border border-[#F4D1CD]">👁️</div>
+                        <h3 class="text-base font-bold text-gray-800">등록된 관점 기록이 없습니다</h3>
+                        <p class="text-xs text-gray-500 max-w-sm leading-relaxed">운영자 로그인 후 '+ 새 메모 작성' 버튼을 눌러 인사이츠를 기록해보세요.</p>
                     </div>
                 `;
                 return;
@@ -985,11 +970,11 @@
                 const safeTag = escapeHtml(card.tag);
 
                 let thumbHtml = card.image ? 
-                    `<img src="${card.image}" class="w-full h-40 object-cover bg-gray-100" alt="썸네일" onerror="this.src='https://placehold.co/400x160/FAF8F5/6B7684?text=Investment+Letter'">` : 
-                    `<div class="w-full h-24 bg-gradient-to-r from-[#FAF8F5] to-[#F4F2EC] flex items-center justify-center text-gray-400 font-bold text-xs tracking-wider border-b border-[#E8E6DF]">✉️ INVESTMENT LETTER</div>`;
+                    `<img src="${card.image}" class="w-full h-40 object-cover bg-gray-100" alt="썸네일" onerror="this.src='https://placehold.co/400x160/FAF8F5/6B7684?text=Investment+View'">` : 
+                    `<div class="w-full h-24 bg-gradient-to-r from-[#FAF8F5] to-[#F4F2EC] flex items-center justify-center text-gray-400 font-bold text-xs tracking-wider border-b border-[#E8E6DF]">👁️ View</div>`;
                 
                 let tickerHtml = safeTicker ? `<span class="bg-gray-100 text-gray-700 font-bold px-2 py-0.5 rounded text-[10px]">${safeTicker}</span>` : '';
-                let typeBadge = `<span class="bg-[#FDF3F2] text-[#D94F3D] font-bold px-2 py-0.5 rounded text-[10px] border border-[#F4D1CD]">💌 명플턴 뷰</span>`;
+                let typeBadge = `<span class="bg-[#FDF3F2] text-[#D94F3D] font-bold px-2 py-0.5 rounded text-[10px] border border-[#F4D1CD]">👁️ View</span>`;
 
                 let newBadgeHtml = '';
                 const cardDate = new Date(card.date);
