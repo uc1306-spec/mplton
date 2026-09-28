@@ -56,7 +56,7 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3">
             
             <!-- 브랜드 로고 -->
-            <div class="flex items-center gap-2.5">
+            <div onclick="resetHomeView()" class="flex items-center gap-2.5 cursor-pointer">
                 <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-50 to-blue-50 flex items-center justify-center shadow-sm border border-amber-200/80 p-0.5 shrink-0 overflow-hidden">
                     <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
@@ -149,8 +149,8 @@
     </main>
 
     <!-- 글 작성 / 수정 모달 -->
-    <div id="writeModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white border border-slate-200 rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl transform transition-all flex flex-col gap-4 my-6">
+    <div id="writeModal" onclick="closeWriteModal()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div onclick="event.stopPropagation()" class="bg-white border border-slate-200 rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl transform transition-all flex flex-col gap-4 my-6">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <div>
                     <h2 id="writeModalHeading" class="text-base font-bold text-slate-900">새 관점 기록</h2>
@@ -229,8 +229,8 @@
     </div>
 
     <!-- 상세 모달 (여백 압축 및 스크롤 개선) -->
-    <div id="detailModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
-        <div class="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl transform transition-all flex flex-col gap-3 my-auto max-h-[88vh]">
+    <div id="detailModal" onclick="closeDetailModal()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div onclick="event.stopPropagation()" class="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl transform transition-all flex flex-col gap-3 my-auto max-h-[88vh]">
             
             <!-- 상단 헤더: 티커 & 제목 & 닫기 -->
             <div class="flex justify-between items-start border-b border-slate-100 pb-2.5 gap-2 shrink-0">
@@ -406,6 +406,20 @@
         window.removeSelectedImage = function(index) {
             selectedWriteImages.splice(index, 1);
             renderWriteImagePreviews();
+        };
+
+        window.resetHomeView = function() {
+            currentMonthFilter = 'all';
+            const monthSelect = document.getElementById('monthFilterSelect');
+            if (monthSelect) monthSelect.value = 'all';
+            const tagFilter = document.getElementById('tagFilter');
+            if (tagFilter) tagFilter.value = 'all';
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.value = '';
+            closeDetailModal();
+            closeWriteModal();
+            renderCards();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         const dateInput = document.getElementById('writeDate');
