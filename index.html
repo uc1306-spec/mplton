@@ -167,8 +167,8 @@
     </footer>
 
     <!-- 글 작성 / 수정 모달 -->
-    <div id="writeModal" onclick="closeWriteModal()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div onclick="event.stopPropagation()" class="bg-white border border-slate-200 rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl transform transition-all flex flex-col gap-4 my-6">
+    <div id="writeModal" onclick="closeWriteModal()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div onclick="event.stopPropagation()" class="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl transform transition-all flex flex-col gap-3.5 my-auto max-h-[92vh] overflow-y-auto smooth-scroll">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <div>
                     <h2 id="writeModalHeading" class="text-base font-bold text-slate-900">새 관점 기록</h2>
@@ -179,12 +179,12 @@
 
             <input type="hidden" id="editCardId" value="">
 
-            <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-bold text-slate-500">기록 일자</label>
-                <input type="date" id="writeDate" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#2563EB] focus:bg-white transition font-medium">
-            </div>
-
+            <!-- 1행: 일자, 태그, 티커 (3열 통합) -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="flex flex-col gap-1">
+                    <label class="text-[11px] font-bold text-slate-500">기록 일자</label>
+                    <input type="date" id="writeDate" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#2563EB] focus:bg-white transition font-medium">
+                </div>
                 <div class="flex flex-col gap-1">
                     <label class="text-[11px] font-bold text-slate-500">태그</label>
                     <select id="writeTag" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#2563EB] focus:bg-white transition font-medium">
@@ -200,30 +200,33 @@
                     <label class="text-[11px] font-bold text-slate-500">종목 코드/티커</label>
                     <input type="text" id="writeTicker" placeholder="예: NVDA" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#2563EB] focus:bg-white transition font-medium">
                 </div>
+            </div>
+
+            <!-- 2행: 매수가, 매도가, 수익률 (3열 나란히 배치) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div class="flex flex-col gap-1">
                     <label class="text-[11px] font-bold text-slate-500">매수가 (원/달러)</label>
                     <input type="number" id="writeBuyPrice" placeholder="예: 120000" oninput="calcReturnRate()" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#2563EB] focus:bg-white transition font-medium">
                 </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div class="flex flex-col gap-1">
                     <label class="text-[11px] font-bold text-slate-500">매도가 (원/달러)</label>
                     <input type="number" id="writeSellPrice" placeholder="예: 150000" oninput="calcReturnRate()" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#2563EB] focus:bg-white transition font-medium">
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="text-[11px] font-bold text-slate-500">자동 계산된 수익률</label>
-                    <div id="returnRateDisplay" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-400 flex items-center h-[38px]">
-                        매수가와 매도가 입력 시 자동 계산
+                    <div id="returnRateDisplay" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-400 flex items-center h-[38px] truncate">
+                        자동 계산
                     </div>
                 </div>
             </div>
 
+            <!-- 3행: 제목 -->
             <div class="flex flex-col gap-1">
                 <label class="text-[11px] font-bold text-slate-500">제목 / 종목명</label>
-                <input type="text" id="writeTitle" placeholder="예: 엔비디아 2분기 실적 리뷰 및 관점 정립" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#2563EB] focus:bg-white transition font-medium">
+                <input type="text" id="writeTitle" placeholder="예: 엔비디아 2분기 실적 리뷰 및 관점 정립" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm outline-none focus:border-[#2563EB] focus:bg-white transition font-medium">
             </div>
 
+            <!-- 4행: 이미지 첨부 -->
             <div class="flex flex-col gap-1">
                 <div class="flex justify-between items-center">
                     <label class="text-[11px] font-bold text-slate-500">차트/스크린샷 첨부 (여러 장 선택 가능)</label>
@@ -237,12 +240,13 @@
                 </div>
             </div>
 
+            <!-- 5행: 넓어진 상세 내용 입력창 -->
             <div class="flex flex-col gap-1">
                 <label class="text-[11px] font-bold text-slate-500">상세 내용</label>
-                <textarea id="writeMemo" rows="4" placeholder="투자 핵심 지표, 밸류에이션, 목표가, 체크포인트 등을 자유롭게 기록하세요..." class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#2563EB] focus:bg-white transition font-medium resize-y"></textarea>
+                <textarea id="writeMemo" rows="7" placeholder="투자 핵심 지표, 밸류에이션, 목표가, 체크포인트 등을 자유롭게 기록하세요..." class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm outline-none focus:border-[#2563EB] focus:bg-white transition font-medium resize-y min-h-[170px] leading-relaxed"></textarea>
             </div>
 
-            <button onclick="saveCard()" class="w-full py-3 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-2xl font-bold text-xs shadow-md shadow-blue-500/10 transition mt-1">관점 저장하기</button>
+            <button onclick="saveCard()" class="w-full py-3 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-2xl font-bold text-xs sm:text-sm shadow-md shadow-blue-500/10 transition mt-1">관점 저장하기</button>
         </div>
     </div>
 
@@ -621,15 +625,14 @@
                         showCustomAlert('권한 없음', `로그인된 계정(${user?.email || '익명'})은 운영자가 아닙니다.`);
                     }
                 }).catch((error) => {
-                    console.error("Google login error:", error);
-                    if(error.code === 'auth/unauthorized-domain' || error.code === 'auth/popup-blocked') {
-                        showCustomAlert('운영자 권한 안내', '팝업이 차단되었습니다. 임시 운영자 권한으로 로그인하시겠습니까?', () => {
+                    if(error.code === 'auth/unauthorized-domain' || error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
+                        showCustomAlert('도메인 승인 필요 / 운영자 로그인', '현재 도메인이 Firebase 콘솔에 승인 등록되지 않았습니다. 운영자 모드로 전환하시겠습니까?', () => {
                             localStorage.setItem('mp_operator_bypass_v20', 'true');
                             isOperator = true;
                             currentUserEmail = ADMIN_EMAIL;
                             updateOperatorUI();
                             renderCards();
-                            showCustomAlert('운영자 모드 활성화', '임시 운영자 권한으로 로그인되었습니다.');
+                            showCustomAlert('운영자 모드 활성화', '운영자 권한으로 정상 로그인되었습니다.');
                         });
                     } else {
                         signInWithRedirect(auth, provider).catch(redirectErr => {
